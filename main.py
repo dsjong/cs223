@@ -38,6 +38,9 @@ get_lecture(x)
 
 for _id in ids:
 	header = soup.find(re.compile('^h[1-6]$'), {"id": _id})
+	if header == None:
+		Text += f'<h3 style="color:red"> ID not found: {_id} </h3>\n'
+		continue
 	Text += str(header)
 	sib = header.next_sibling
 	while sib != None and (sib.name == None or sib.name[:-1] != "h" or int(sib.name[-1]) > int(header.name[-1])):

@@ -1,3 +1,4 @@
+set -e
 help="./run.sh lecture_number"
 if [ -z "$1" ]; then
 	echo "error: No homework number supplied"
