@@ -1,5 +1,5 @@
 # cs223
 For reading short excerpts of CS223's behemoth of a lecture notes file
 
-## usage
+## Usage
 Run `./run.sh lecture-number` in WSL.

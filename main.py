@@ -1,8 +1,11 @@
 from bs4 import BeautifulSoup
 import re
 from pathlib import Path
+import requests
 
-html = open(Path(__file__).parent / "notes.html")
+url = "https://www.cs.yale.edu/homes/aspnes/classes/223/notes.html"
+r = requests.get(url, verify = False)
+html = r.content.decode().strip()
 soup = BeautifulSoup(html, "html.parser")
 
 Text = open("top.html", "r").read()
@@ -18,8 +21,6 @@ for date in sched_list.find_all("dt"):
 		desc = desc.next_sibling
 	days.append([date, desc])
 
-#print(days)
-
 ids = []
 
 def get_lecture(x: int):
@@ -28,9 +29,8 @@ def get_lecture(x: int):
 	global Text
 	for links in days[x][1].find_all("a"):
 		href = links.attrs.get("href", "")
-		if href.startswith("https://www.cs.yale.edu/homes/aspnes/classes/223/notes.html#"):
-			ids.append(href[60:])
-			links.attrs["href"] = "output.html#" + href[60:]
+		if href.startswith("#"):
+			ids.append(href[1:])
 	Text += str(days[x][0]) + str(days[x][1])
 
 x = int(input())

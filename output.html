@@ -341,9 +341,9 @@ page-break-after: avoid;
 }
 }
 </style>
-<dt>2021-03-08</dt><dd>Structured data types: <code>struct</code>s, <code>union</code>s, and <code>enum</code>s. Separating interfaces from implementations. Readings: <a href="output.html#structuredDataTypes">Structured data types</a>; K&amp;R Chapter 6, §2.5 (for <code>enum</code>s). <a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/2021/lecture/2021-03-08">Examples from lecture</a>: <code>bytes2.c</code> and bytesMain.c<code>can be compiled together;</code>bytes.c<code>is the predecessor to</code>bytes2.c<code>that can't do</code>bytesResize` and so required changing the internal implementation.
+<dt>2021-03-08</dt><dd>Structured data types: <code>struct</code>s, <code>union</code>s, and <code>enum</code>s. Separating interfaces from implementations. Readings: <a href="#structuredDataTypes">Structured data types</a>; K&amp;R Chapter 6, §2.5 (for <code>enum</code>s). <a href="examples/2021/lecture/2021-03-08">Examples from lecture</a>: <code>bytes2.c</code> and bytesMain.c<code>can be compiled together;</code>bytes.c<code>is the predecessor to</code>bytes2.c<code>that can't do</code>bytesResize` and so required changing the internal implementation.
 </dd><h2 id="structuredDataTypes"><span class="header-section-number">4.11</span> Structured data types</h2>
-<p>C has two kinds of structured data types: <code>struct</code>s and <code>union</code>s. A <code>struct</code> holds multiple values in consecutive memory locations, called <strong>fields</strong>, and implements what in type theory is called a <strong>product type</strong>: the set of possible values is the Cartesian product of the sets of possible values for its fields. In contrast, a <code>union</code> has multiple fields but they are all stored in the same location: effectively, this means that only one field at a time can hold a value, making a <code>union</code> a <strong>sum type</strong> whose set of possible values is the union of the sets of possible values for each of its fields. Unlike what happens in more sensible programming languages, <code>union</code>s are not tagged: unless you keep track of this somewhere else, you can’t tell which field in a union is being used, and you can store a value of one type in a <code>union</code> and try to read it back as a different type, and C won’t complain.<a class="footnote-ref" href="https://www.cs.yale.edu/homes/aspnes/classes/223/notes.html#fn13" id="fnref13" role="doc-noteref"><sup>13</sup></a></p>
+<p>C has two kinds of structured data types: <code>struct</code>s and <code>union</code>s. A <code>struct</code> holds multiple values in consecutive memory locations, called <strong>fields</strong>, and implements what in type theory is called a <strong>product type</strong>: the set of possible values is the Cartesian product of the sets of possible values for its fields. In contrast, a <code>union</code> has multiple fields but they are all stored in the same location: effectively, this means that only one field at a time can hold a value, making a <code>union</code> a <strong>sum type</strong> whose set of possible values is the union of the sets of possible values for each of its fields. Unlike what happens in more sensible programming languages, <code>union</code>s are not tagged: unless you keep track of this somewhere else, you can’t tell which field in a union is being used, and you can store a value of one type in a <code>union</code> and try to read it back as a different type, and C won’t complain.<a class="footnote-ref" href="#fn13" id="fnref13" role="doc-noteref"><sup>13</sup></a></p>
 <h3 id="structs"><span class="header-section-number">4.11.1</span> Structs</h3>
 <p>A <code class="backtick">struct</code> is a way to define a type that consists of one or more other types pasted together. Here’s a typical <code class="backtick">struct</code> definition:</p>
 <div class="sourceCode" id="cb256"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb256-1" title="1"><span class="kw">struct</span> string {</a>
@@ -371,10 +371,10 @@ page-break-after: avoid;
 <a class="sourceLine" id="cb257-15" title="15"></a>
 <a class="sourceLine" id="cb257-16" title="16">    <span class="cf">return</span> <span class="dv">0</span>;</a>
 <a class="sourceLine" id="cb257-17" title="17">}</a></code></pre></div>
-<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/structs/structExample.c">examples/structs/structExample.c</a>
+<a href="examples/structs/structExample.c">examples/structs/structExample.c</a>
 </div>
 <p>Variables of type <code class="backtick">struct</code> can be assigned to, passed into functions, returned from functions, just like any other type. Each such operation is applied componentwise; for example, <code class="backtick">s1 = s2;</code> is equivalent to <code class="backtick">s1.length = s2.length; s1.data = s2.data;</code>.</p>
-<p>These operations are not used as often as you might think: typically, instead of copying around entire structures, C programs pass around pointers, as is done with arrays. Pointers to <code class="backtick">struct</code>s are common enough in C that a special syntax is provided for dereferencing them.<a class="footnote-ref" href="https://www.cs.yale.edu/homes/aspnes/classes/223/notes.html#fn14" id="fnref14" role="doc-noteref"><sup>14</sup></a> Suppose we have:</p>
+<p>These operations are not used as often as you might think: typically, instead of copying around entire structures, C programs pass around pointers, as is done with arrays. Pointers to <code class="backtick">struct</code>s are common enough in C that a special syntax is provided for dereferencing them.<a class="footnote-ref" href="#fn14" id="fnref14" role="doc-noteref"><sup>14</sup></a> Suppose we have:</p>
 <div class="sourceCode" id="cb258"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb258-1" title="1">    <span class="kw">struct</span> string s;            <span class="co">/* a struct */</span></a>
 <a class="sourceLine" id="cb258-2" title="2">    <span class="kw">struct</span> string *sp;          <span class="co">/* a pointer to a struct */</span></a>
 <a class="sourceLine" id="cb258-3" title="3"></a>
@@ -386,7 +386,7 @@ page-break-after: avoid;
 <div class="sourceCode" id="cb259"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb259-1" title="1">    puts((*sp).data);</a>
 <a class="sourceLine" id="cb259-2" title="2">    puts(sp-&gt;data);</a></code></pre></div>
 <p>The second is more common, since it involves typing fewer parentheses. It is an error to write <code class="backtick">*sp.data</code> in this case; since <code class="backtick">.</code> binds tighter than <code class="backtick">*</code>, the compiler will attempt to evaluate <code class="backtick">sp.data</code> first and generate an error, since <code class="backtick">sp</code> doesn’t have a <code class="backtick">data</code> field.</p>
-<p>Pointers to <code class="backtick">struct</code>s are commonly used in defining <a href="https://www.cs.yale.edu/homes/aspnes/classes/223/notes.html#abstractDataTypes">abstract data types</a>, since it is possible to declare that a function returns e.g. a <code class="backtick">struct string *</code> without specifying the components of a <code class="backtick">struct string</code>. (All pointers to <code class="backtick">struct</code>s in C have the same size and structure, so the compiler doesn’t need to know the components to pass around the address.) Hiding the components discourages code that shouldn’t look at them from doing so, and can be used, for example, to enforce consistency between fields.</p>
+<p>Pointers to <code class="backtick">struct</code>s are commonly used in defining <a href="#abstractDataTypes">abstract data types</a>, since it is possible to declare that a function returns e.g. a <code class="backtick">struct string *</code> without specifying the components of a <code class="backtick">struct string</code>. (All pointers to <code class="backtick">struct</code>s in C have the same size and structure, so the compiler doesn’t need to know the components to pass around the address.) Hiding the components discourages code that shouldn’t look at them from doing so, and can be used, for example, to enforce consistency between fields.</p>
 <p>For example, suppose we wanted to define a <code class="backtick">struct string *</code> type that held counted strings that could only be accessed through a restricted interface that prevented (for example) the user from changing the string or its length. We might create a file <code class="backtick">myString.h</code> that contained the declarations:</p>
 <div>
 <div class="sourceCode" id="cb260"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb260-1" title="1"><span class="co">/* make a struct string * that holds a copy of s */</span></a>
@@ -402,7 +402,7 @@ page-break-after: avoid;
 <a class="sourceLine" id="cb260-11" title="11"><span class="co">/* return the character at position index in the struct string * */</span></a>
 <a class="sourceLine" id="cb260-12" title="12"><span class="co">/* or returns -1 if index is out of bounds */</span></a>
 <a class="sourceLine" id="cb260-13" title="13"><span class="dt">int</span> stringCharAt(<span class="kw">struct</span> string *s, <span class="dt">int</span> index);</a></code></pre></div>
-<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/myString/myString.h">examples/myString/myString.h</a>
+<a href="examples/myString/myString.h">examples/myString/myString.h</a>
 </div>
 <p>and then the actual implementation in <code class="backtick">myString.c</code> would be the only place where the components of a <code class="backtick">struct string</code> were defined:</p>
 <div>
@@ -459,14 +459,14 @@ page-break-after: avoid;
 <a class="sourceLine" id="cb261-51" title="51">	<span class="cf">return</span> s-&gt;data[index];</a>
 <a class="sourceLine" id="cb261-52" title="52">    }</a>
 <a class="sourceLine" id="cb261-53" title="53">}</a></code></pre></div>
-<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/myString/myString.c">examples/myString/myString.c</a>
+<a href="examples/myString/myString.c">examples/myString/myString.c</a>
 </div>
 <p>In practice, we would probably go even further and replace all the <code class="backtick">struct string *</code> types with a new name declared with <code class="backtick">typedef</code>.</p>
 <h4 id="operations-on-structs"><span class="header-section-number">4.11.1.1</span> Operations on structs</h4>
 <p>What you can do to structs is pretty limited: you can look up or set individual components in a struct, you can pass structs to functions or as return values from functions (which makes a copy of the original struct), and you can assign the contents of one struct to another using <code>s1 = s2</code> (which is equivalent to copying each component separately).</p>
 <p>One thing that you <em>can’t</em> do is test two structs for equality using <code>==</code>; this is because structs may contain extra space holding junk data. If you want to test for equality, you will need to do it componenti by component.</p>
 <h4 id="structLayout"><span class="header-section-number">4.11.1.2</span> Layout in memory</h4>
-<p>The C99 standard guarantees that the components of a <code>struct</code> are stored in memory in the same order that they are defined in: that is, later components are placed at higher address. This allows sneaky tricks like truncating a structure if you don’t use all of its components. Because of <a href="https://www.cs.yale.edu/homes/aspnes/classes/223/notes.html#alignment">alignment restrictions</a>, the compiler may add padding between components to put each component on its prefered alignment boundary.</p>
+<p>The C99 standard guarantees that the components of a <code>struct</code> are stored in memory in the same order that they are defined in: that is, later components are placed at higher address. This allows sneaky tricks like truncating a structure if you don’t use all of its components. Because of <a href="#alignment">alignment restrictions</a>, the compiler may add padding between components to put each component on its prefered alignment boundary.</p>
 <p>You can find the position of a component within a <code>struct</code> using the <code>offsetof</code> macro, which is defined in <code>stddef.h</code>. This returns the number of bytes from the base of the struct that the component starts at, and can be used to do various terrifying non-semantic things with pointers.</p>
 <div>
 <div class="sourceCode" id="cb262"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb262-1" title="1"><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></a>
@@ -493,7 +493,7 @@ page-break-after: avoid;
 <a class="sourceLine" id="cb262-22" title="22"></a>
 <a class="sourceLine" id="cb262-23" title="23">    <span class="cf">return</span> <span class="dv">0</span>;</a>
 <a class="sourceLine" id="cb262-24" title="24">}</a></code></pre></div>
-<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/structs/offsetof.c">examples/structs/offsetof.c</a>
+<a href="examples/structs/offsetof.c">examples/structs/offsetof.c</a>
 </div>
 <h4 id="Bit_fields"><span class="header-section-number">4.11.1.3</span> Bit fields</h4>
 <p>It is possible to specify the exact number of bits taken up by a member of a <code>struct</code> of integer type. This is seldom useful, but may in principle let you pack more information in less space. Bit fields are sometimes used to unpack data from an external source that uses this trick, but this is dangerous, because there is no guarantee that the compiler will order the bit fields in your <code>struct</code> in any particular order (at the very least, you will need to worry about <a href="http://en.wikipedia.org/wiki/Endianness">endianness</a>.</p>
@@ -563,7 +563,7 @@ So the following ridiculous code works just fine:</p>
 <a class="sourceLine" id="cb268-27" title="27"></a>
 <a class="sourceLine" id="cb268-28" title="28">    <span class="cf">return</span> <span class="dv">0</span>;</a>
 <a class="sourceLine" id="cb268-29" title="29">}</a></code></pre></div>
-<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/definitions/enumsAreInts.c">examples/definitions/enumsAreInts.c</a>
+<a href="examples/definitions/enumsAreInts.c">examples/definitions/enumsAreInts.c</a>
 </div>
 <h4 id="specifying-particular-values"><span class="header-section-number">4.11.3.1</span> Specifying particular values</h4>
 <p>It is also possible to specify particular values for particular enumerated constants, as in</p>
