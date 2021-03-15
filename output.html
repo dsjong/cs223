@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<!-- saved from url=(0059)https://www.cs.yale.edu/homes/aspnes/classes/223/notes.html -->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang=""><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="author" content="James Aspnes">
+  <title>Notes on Data Structures and Programming Techniques (CPSC 223, Spring 2021)</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style>
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style type="text/css">
+html {
+font-size: 100%;
+overflow-y: scroll;
+-webkit-text-size-adjust: 100%;
+-ms-text-size-adjust: 100%;
+}
+body {
+color: #444;
+font-family: Georgia, Palatino, 'Palatino Linotype', Times, 'Times New Roman', serif;
+font-size: 12px;
+line-height: 1.4;
+padding: 1em;
+margin: auto;
+max-width: 44em;
+background: #fefefe;
+}
+a {
+color: #0645ad;
+text-decoration: none;
+}
+a:visited {
+color: #0b0080;
+}
+a:hover {
+color: #06e;
+}
+a:active {
+color: #faa700;
+}
+a:focus {
+outline: thin dotted;
+}
+*::-moz-selection {
+background: rgba(255, 255, 0, 0.3);
+color: #000;
+}
+*::selection {
+background: rgba(255, 255, 0, 0.3);
+color: #000;
+}
+a::-moz-selection {
+background: rgba(255, 255, 0, 0.3);
+color: #0645ad;
+}
+a::selection {
+background: rgba(255, 255, 0, 0.3);
+color: #0645ad;
+}
+p {
+margin: 1em 0;
+}
+img {
+max-width: 100%;
+}
+h1, h2, h3, h4, h5, h6 {
+color: #111;
+line-height: 125%;
+margin-top: 2em;
+font-weight: normal;
+}
+h4, h5, h6 {
+font-weight: bold;
+}
+h1 {
+font-size: 2.5em;
+}
+h2 {
+font-size: 2em;
+}
+h3 {
+font-size: 1.5em;
+}
+h4 {
+font-size: 1.2em;
+}
+h5 {
+font-size: 1em;
+}
+h6 {
+font-size: 0.9em;
+}
+blockquote {
+color: #666666;
+margin: 0;
+padding-left: 3em;
+border-left: 0.5em #EEE solid;
+}
+hr {
+display: block;
+height: 2px;
+border: 0;
+border-top: 1px solid #aaa;
+border-bottom: 1px solid #eee;
+margin: 1em 0;
+padding: 0;
+}
+pre, code, kbd, samp {
+color: #000;
+font-family: monospace, monospace;
+_font-family: 'courier new', monospace;
+font-size: 0.98em;
+}
+pre {
+white-space: pre;
+white-space: pre-wrap;
+word-wrap: break-word;
+}
+b, strong {
+font-weight: bold;
+}
+dfn {
+font-style: italic;
+}
+ins {
+background: #ff9;
+color: #000;
+text-decoration: none;
+}
+mark {
+background: #ff0;
+color: #000;
+font-style: italic;
+font-weight: bold;
+}
+sub, sup {
+font-size: 75%;
+line-height: 0;
+position: relative;
+vertical-align: baseline;
+}
+sup {
+top: -0.5em;
+}
+sub {
+bottom: -0.25em;
+}
+ul, ol {
+margin: 1em 0;
+padding: 0 0 0 2em;
+}
+li p:last-child {
+margin-bottom: 0;
+}
+ul ul, ol ol {
+margin: .3em 0;
+}
+dl {
+margin-bottom: 1em;
+}
+dt {
+font-weight: bold;
+margin-bottom: .8em;
+}
+dd {
+margin: 0 0 .8em 2em;
+}
+dd:last-child {
+margin-bottom: 0;
+}
+img {
+border: 0;
+-ms-interpolation-mode: bicubic;
+vertical-align: middle;
+}
+figure {
+display: block;
+text-align: center;
+margin: 1em 0;
+}
+figure img {
+border: none;
+margin: 0 auto;
+}
+figcaption {
+font-size: 0.8em;
+font-style: italic;
+margin: 0 0 .8em;
+}
+table {
+margin-bottom: 2em;
+border-bottom: 1px solid #ddd;
+border-right: 1px solid #ddd;
+border-spacing: 0;
+border-collapse: collapse;
+}
+table th {
+padding: .2em 1em;
+background-color: #eee;
+border-top: 1px solid #ddd;
+border-left: 1px solid #ddd;
+}
+table td {
+padding: .2em 1em;
+border-top: 1px solid #ddd;
+border-left: 1px solid #ddd;
+vertical-align: top;
+}
+.author {
+font-size: 1.2em;
+text-align: center;
+}
+@media only screen and (min-width: 480px) {
+body {
+font-size: 14px;
+}
+}
+@media only screen and (min-width: 768px) {
+body {
+font-size: 16px;
+}
+}
+@media print {
+* {
+background: transparent !important;
+color: black !important;
+filter: none !important;
+-ms-filter: none !important;
+}
+body {
+font-size: 12pt;
+max-width: 100%;
+}
+a, a:visited {
+text-decoration: underline;
+}
+hr {
+height: 1px;
+border: 0;
+border-bottom: 1px solid black;
+}
+a[href]:after {
+content: " (" attr(href) ")";
+}
+abbr[title]:after {
+content: " (" attr(title) ")";
+}
+.ir a:after, a[href^="javascript:"]:after, a[href^="#"]:after {
+content: "";
+}
+pre, blockquote {
+border: 1px solid #999;
+padding-right: 1em;
+page-break-inside: avoid;
+}
+tr, img {
+page-break-inside: avoid;
+}
+img {
+max-width: 100% !important;
+}
+@page :left {
+margin: 15mm 20mm 15mm 10mm;
+}
+@page :right {
+margin: 15mm 10mm 15mm 20mm;
+}
+p, h2, h3 {
+orphans: 3;
+widows: 3;
+}
+h2, h3 {
+page-break-after: avoid;
+}
+}
+</style>
+<dt>2021-03-08</dt><dd>Structured data types: <code>struct</code>s, <code>union</code>s, and <code>enum</code>s. Separating interfaces from implementations. Readings: <a href="output.html#structuredDataTypes">Structured data types</a>; K&amp;R Chapter 6, §2.5 (for <code>enum</code>s). <a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/2021/lecture/2021-03-08">Examples from lecture</a>: <code>bytes2.c</code> and bytesMain.c<code>can be compiled together;</code>bytes.c<code>is the predecessor to</code>bytes2.c<code>that can't do</code>bytesResize` and so required changing the internal implementation.
+</dd><h2 id="structuredDataTypes"><span class="header-section-number">4.11</span> Structured data types</h2>
+<p>C has two kinds of structured data types: <code>struct</code>s and <code>union</code>s. A <code>struct</code> holds multiple values in consecutive memory locations, called <strong>fields</strong>, and implements what in type theory is called a <strong>product type</strong>: the set of possible values is the Cartesian product of the sets of possible values for its fields. In contrast, a <code>union</code> has multiple fields but they are all stored in the same location: effectively, this means that only one field at a time can hold a value, making a <code>union</code> a <strong>sum type</strong> whose set of possible values is the union of the sets of possible values for each of its fields. Unlike what happens in more sensible programming languages, <code>union</code>s are not tagged: unless you keep track of this somewhere else, you can’t tell which field in a union is being used, and you can store a value of one type in a <code>union</code> and try to read it back as a different type, and C won’t complain.<a class="footnote-ref" href="https://www.cs.yale.edu/homes/aspnes/classes/223/notes.html#fn13" id="fnref13" role="doc-noteref"><sup>13</sup></a></p>
+<h3 id="structs"><span class="header-section-number">4.11.1</span> Structs</h3>
+<p>A <code class="backtick">struct</code> is a way to define a type that consists of one or more other types pasted together. Here’s a typical <code class="backtick">struct</code> definition:</p>
+<div class="sourceCode" id="cb256"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb256-1" title="1"><span class="kw">struct</span> string {</a>
+<a class="sourceLine" id="cb256-2" title="2">    <span class="dt">int</span> length;</a>
+<a class="sourceLine" id="cb256-3" title="3">    <span class="dt">char</span> *data;</a>
+<a class="sourceLine" id="cb256-4" title="4">};</a></code></pre></div>
+<p>This defines a new type <code class="backtick">struct string</code> that can be used anywhere you would use a simple type like <code class="backtick">int</code> or <code class="backtick">float</code>. When you declare a variable with type <code class="backtick">struct string</code>, the compiler allocates enough space to hold both an <code class="backtick">int</code> and a <code class="backtick">char *</code>.</p>
+<p>Note that this declaration has a semicolon after the close brace. This can be confusing, since most close braces in C appear at the end of function bodies or compound statements, and are not followed by a semicolon. If you get strange error messages for lines following a <code>struct</code> definition, it’s worth checking to make sure that the semicolon is there.</p>
+<p>You can get at the individual components of a <code>struct</code> using the <code class="backtick">.</code> operator, like this:</p>
+<div>
+<div class="sourceCode" id="cb257"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb257-1" title="1"><span class="kw">struct</span> string {</a>
+<a class="sourceLine" id="cb257-2" title="2">    <span class="dt">int</span> length;</a>
+<a class="sourceLine" id="cb257-3" title="3">    <span class="dt">char</span> *data;</a>
+<a class="sourceLine" id="cb257-4" title="4">};</a>
+<a class="sourceLine" id="cb257-5" title="5"></a>
+<a class="sourceLine" id="cb257-6" title="6"><span class="dt">int</span></a>
+<a class="sourceLine" id="cb257-7" title="7">main(<span class="dt">int</span> argc, <span class="dt">char</span> **argv)</a>
+<a class="sourceLine" id="cb257-8" title="8">{</a>
+<a class="sourceLine" id="cb257-9" title="9">    <span class="kw">struct</span> string s;</a>
+<a class="sourceLine" id="cb257-10" title="10"></a>
+<a class="sourceLine" id="cb257-11" title="11">    s.length = <span class="dv">4</span>;</a>
+<a class="sourceLine" id="cb257-12" title="12">    s.data = <span class="st">"this string is a lot longer than you think"</span>;</a>
+<a class="sourceLine" id="cb257-13" title="13"></a>
+<a class="sourceLine" id="cb257-14" title="14">    puts(s.data);</a>
+<a class="sourceLine" id="cb257-15" title="15"></a>
+<a class="sourceLine" id="cb257-16" title="16">    <span class="cf">return</span> <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb257-17" title="17">}</a></code></pre></div>
+<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/structs/structExample.c">examples/structs/structExample.c</a>
+</div>
+<p>Variables of type <code class="backtick">struct</code> can be assigned to, passed into functions, returned from functions, just like any other type. Each such operation is applied componentwise; for example, <code class="backtick">s1 = s2;</code> is equivalent to <code class="backtick">s1.length = s2.length; s1.data = s2.data;</code>.</p>
+<p>These operations are not used as often as you might think: typically, instead of copying around entire structures, C programs pass around pointers, as is done with arrays. Pointers to <code class="backtick">struct</code>s are common enough in C that a special syntax is provided for dereferencing them.<a class="footnote-ref" href="https://www.cs.yale.edu/homes/aspnes/classes/223/notes.html#fn14" id="fnref14" role="doc-noteref"><sup>14</sup></a> Suppose we have:</p>
+<div class="sourceCode" id="cb258"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb258-1" title="1">    <span class="kw">struct</span> string s;            <span class="co">/* a struct */</span></a>
+<a class="sourceLine" id="cb258-2" title="2">    <span class="kw">struct</span> string *sp;          <span class="co">/* a pointer to a struct */</span></a>
+<a class="sourceLine" id="cb258-3" title="3"></a>
+<a class="sourceLine" id="cb258-4" title="4">    s.length = <span class="dv">4</span>;</a>
+<a class="sourceLine" id="cb258-5" title="5">    s.data = <span class="st">"another overly long string"</span>;</a>
+<a class="sourceLine" id="cb258-6" title="6"></a>
+<a class="sourceLine" id="cb258-7" title="7">    sp = &amp;s;                    <span class="co">/* sp now points to s */</span></a></code></pre></div>
+<p>We can then refer to elements of the <code class="backtick">struct string</code> that <code class="backtick">sp</code> points to (i.e. <code class="backtick">s</code>) in either of two ways:</p>
+<div class="sourceCode" id="cb259"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb259-1" title="1">    puts((*sp).data);</a>
+<a class="sourceLine" id="cb259-2" title="2">    puts(sp-&gt;data);</a></code></pre></div>
+<p>The second is more common, since it involves typing fewer parentheses. It is an error to write <code class="backtick">*sp.data</code> in this case; since <code class="backtick">.</code> binds tighter than <code class="backtick">*</code>, the compiler will attempt to evaluate <code class="backtick">sp.data</code> first and generate an error, since <code class="backtick">sp</code> doesn’t have a <code class="backtick">data</code> field.</p>
+<p>Pointers to <code class="backtick">struct</code>s are commonly used in defining <a href="https://www.cs.yale.edu/homes/aspnes/classes/223/notes.html#abstractDataTypes">abstract data types</a>, since it is possible to declare that a function returns e.g. a <code class="backtick">struct string *</code> without specifying the components of a <code class="backtick">struct string</code>. (All pointers to <code class="backtick">struct</code>s in C have the same size and structure, so the compiler doesn’t need to know the components to pass around the address.) Hiding the components discourages code that shouldn’t look at them from doing so, and can be used, for example, to enforce consistency between fields.</p>
+<p>For example, suppose we wanted to define a <code class="backtick">struct string *</code> type that held counted strings that could only be accessed through a restricted interface that prevented (for example) the user from changing the string or its length. We might create a file <code class="backtick">myString.h</code> that contained the declarations:</p>
+<div>
+<div class="sourceCode" id="cb260"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb260-1" title="1"><span class="co">/* make a struct string * that holds a copy of s */</span></a>
+<a class="sourceLine" id="cb260-2" title="2"><span class="co">/* returns 0 if malloc fails */</span></a>
+<a class="sourceLine" id="cb260-3" title="3"><span class="kw">struct</span> string *makeString(<span class="dt">const</span> <span class="dt">char</span> *s);</a>
+<a class="sourceLine" id="cb260-4" title="4"></a>
+<a class="sourceLine" id="cb260-5" title="5"><span class="co">/* destroy a struct string * */</span></a>
+<a class="sourceLine" id="cb260-6" title="6"><span class="dt">void</span> destroyString(<span class="kw">struct</span> string *);</a>
+<a class="sourceLine" id="cb260-7" title="7"></a>
+<a class="sourceLine" id="cb260-8" title="8"><span class="co">/* return the length of a struct string * */</span></a>
+<a class="sourceLine" id="cb260-9" title="9"><span class="dt">int</span> stringLength(<span class="kw">struct</span> string *);</a>
+<a class="sourceLine" id="cb260-10" title="10"></a>
+<a class="sourceLine" id="cb260-11" title="11"><span class="co">/* return the character at position index in the struct string * */</span></a>
+<a class="sourceLine" id="cb260-12" title="12"><span class="co">/* or returns -1 if index is out of bounds */</span></a>
+<a class="sourceLine" id="cb260-13" title="13"><span class="dt">int</span> stringCharAt(<span class="kw">struct</span> string *s, <span class="dt">int</span> index);</a></code></pre></div>
+<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/myString/myString.h">examples/myString/myString.h</a>
+</div>
+<p>and then the actual implementation in <code class="backtick">myString.c</code> would be the only place where the components of a <code class="backtick">struct string</code> were defined:</p>
+<div>
+<div class="sourceCode" id="cb261"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb261-1" title="1"><span class="pp">#include </span><span class="im">&lt;stdlib.h&gt;</span></a>
+<a class="sourceLine" id="cb261-2" title="2"><span class="pp">#include </span><span class="im">&lt;string.h&gt;</span></a>
+<a class="sourceLine" id="cb261-3" title="3"></a>
+<a class="sourceLine" id="cb261-4" title="4"><span class="pp">#include </span><span class="im">"myString.h"</span></a>
+<a class="sourceLine" id="cb261-5" title="5"></a>
+<a class="sourceLine" id="cb261-6" title="6"><span class="kw">struct</span> string {</a>
+<a class="sourceLine" id="cb261-7" title="7">    <span class="dt">int</span> length;</a>
+<a class="sourceLine" id="cb261-8" title="8">    <span class="dt">char</span> *data;</a>
+<a class="sourceLine" id="cb261-9" title="9">};</a>
+<a class="sourceLine" id="cb261-10" title="10"></a>
+<a class="sourceLine" id="cb261-11" title="11"><span class="kw">struct</span> string *</a>
+<a class="sourceLine" id="cb261-12" title="12">makeString(<span class="dt">const</span> <span class="dt">char</span> *s)</a>
+<a class="sourceLine" id="cb261-13" title="13">{</a>
+<a class="sourceLine" id="cb261-14" title="14">    <span class="kw">struct</span> string *s2;</a>
+<a class="sourceLine" id="cb261-15" title="15"></a>
+<a class="sourceLine" id="cb261-16" title="16">    s2 = malloc(<span class="kw">sizeof</span>(<span class="kw">struct</span> string));</a>
+<a class="sourceLine" id="cb261-17" title="17">    <span class="cf">if</span>(s2 == <span class="dv">0</span>) { <span class="cf">return</span> <span class="dv">0</span>; }  <span class="co">/* let caller worry about malloc failures */</span></a>
+<a class="sourceLine" id="cb261-18" title="18"></a>
+<a class="sourceLine" id="cb261-19" title="19">    s2-&gt;length = strlen(s);</a>
+<a class="sourceLine" id="cb261-20" title="20"></a>
+<a class="sourceLine" id="cb261-21" title="21">    s2-&gt;data = malloc(s2-&gt;length);</a>
+<a class="sourceLine" id="cb261-22" title="22">    <span class="cf">if</span>(s2-&gt;data == <span class="dv">0</span>) {</a>
+<a class="sourceLine" id="cb261-23" title="23">	free(s2);</a>
+<a class="sourceLine" id="cb261-24" title="24">	<span class="cf">return</span> <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb261-25" title="25">    }</a>
+<a class="sourceLine" id="cb261-26" title="26"></a>
+<a class="sourceLine" id="cb261-27" title="27">    strncpy(s2-&gt;data, s, s2-&gt;length);</a>
+<a class="sourceLine" id="cb261-28" title="28"></a>
+<a class="sourceLine" id="cb261-29" title="29">    <span class="cf">return</span> s2;</a>
+<a class="sourceLine" id="cb261-30" title="30">}</a>
+<a class="sourceLine" id="cb261-31" title="31"></a>
+<a class="sourceLine" id="cb261-32" title="32"><span class="dt">void</span></a>
+<a class="sourceLine" id="cb261-33" title="33">destroyString(<span class="kw">struct</span> string *s)</a>
+<a class="sourceLine" id="cb261-34" title="34">{</a>
+<a class="sourceLine" id="cb261-35" title="35">    free(s-&gt;data);</a>
+<a class="sourceLine" id="cb261-36" title="36">    free(s);</a>
+<a class="sourceLine" id="cb261-37" title="37">}</a>
+<a class="sourceLine" id="cb261-38" title="38"></a>
+<a class="sourceLine" id="cb261-39" title="39"><span class="dt">int</span></a>
+<a class="sourceLine" id="cb261-40" title="40">stringLength(<span class="kw">struct</span> string *s)</a>
+<a class="sourceLine" id="cb261-41" title="41">{</a>
+<a class="sourceLine" id="cb261-42" title="42">    <span class="cf">return</span> s-&gt;length;</a>
+<a class="sourceLine" id="cb261-43" title="43">}</a>
+<a class="sourceLine" id="cb261-44" title="44"></a>
+<a class="sourceLine" id="cb261-45" title="45"><span class="dt">int</span></a>
+<a class="sourceLine" id="cb261-46" title="46">stringCharAt(<span class="kw">struct</span> string *s, <span class="dt">int</span> index)</a>
+<a class="sourceLine" id="cb261-47" title="47">{</a>
+<a class="sourceLine" id="cb261-48" title="48">    <span class="cf">if</span>(index &lt; <span class="dv">0</span> || index &gt;= s-&gt;length) {</a>
+<a class="sourceLine" id="cb261-49" title="49">	<span class="cf">return</span> -<span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb261-50" title="50">    } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb261-51" title="51">	<span class="cf">return</span> s-&gt;data[index];</a>
+<a class="sourceLine" id="cb261-52" title="52">    }</a>
+<a class="sourceLine" id="cb261-53" title="53">}</a></code></pre></div>
+<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/myString/myString.c">examples/myString/myString.c</a>
+</div>
+<p>In practice, we would probably go even further and replace all the <code class="backtick">struct string *</code> types with a new name declared with <code class="backtick">typedef</code>.</p>
+<h4 id="operations-on-structs"><span class="header-section-number">4.11.1.1</span> Operations on structs</h4>
+<p>What you can do to structs is pretty limited: you can look up or set individual components in a struct, you can pass structs to functions or as return values from functions (which makes a copy of the original struct), and you can assign the contents of one struct to another using <code>s1 = s2</code> (which is equivalent to copying each component separately).</p>
+<p>One thing that you <em>can’t</em> do is test two structs for equality using <code>==</code>; this is because structs may contain extra space holding junk data. If you want to test for equality, you will need to do it componenti by component.</p>
+<h4 id="structLayout"><span class="header-section-number">4.11.1.2</span> Layout in memory</h4>
+<p>The C99 standard guarantees that the components of a <code>struct</code> are stored in memory in the same order that they are defined in: that is, later components are placed at higher address. This allows sneaky tricks like truncating a structure if you don’t use all of its components. Because of <a href="https://www.cs.yale.edu/homes/aspnes/classes/223/notes.html#alignment">alignment restrictions</a>, the compiler may add padding between components to put each component on its prefered alignment boundary.</p>
+<p>You can find the position of a component within a <code>struct</code> using the <code>offsetof</code> macro, which is defined in <code>stddef.h</code>. This returns the number of bytes from the base of the struct that the component starts at, and can be used to do various terrifying non-semantic things with pointers.</p>
+<div>
+<div class="sourceCode" id="cb262"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb262-1" title="1"><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></a>
+<a class="sourceLine" id="cb262-2" title="2"><span class="pp">#include </span><span class="im">&lt;stdlib.h&gt;</span></a>
+<a class="sourceLine" id="cb262-3" title="3"><span class="pp">#include </span><span class="im">&lt;stddef.h&gt;</span></a>
+<a class="sourceLine" id="cb262-4" title="4"><span class="pp">#include </span><span class="im">&lt;assert.h&gt;</span></a>
+<a class="sourceLine" id="cb262-5" title="5"></a>
+<a class="sourceLine" id="cb262-6" title="6"><span class="dt">int</span></a>
+<a class="sourceLine" id="cb262-7" title="7">main(<span class="dt">int</span> argc, <span class="dt">char</span> **argv)</a>
+<a class="sourceLine" id="cb262-8" title="8">{</a>
+<a class="sourceLine" id="cb262-9" title="9">    <span class="kw">struct</span> foo {</a>
+<a class="sourceLine" id="cb262-10" title="10">        <span class="dt">int</span> i;</a>
+<a class="sourceLine" id="cb262-11" title="11">        <span class="dt">char</span> c;</a>
+<a class="sourceLine" id="cb262-12" title="12">        <span class="dt">double</span> d;</a>
+<a class="sourceLine" id="cb262-13" title="13">        <span class="dt">float</span> f;</a>
+<a class="sourceLine" id="cb262-14" title="14">        <span class="dt">char</span> *s;</a>
+<a class="sourceLine" id="cb262-15" title="15">    };</a>
+<a class="sourceLine" id="cb262-16" title="16"></a>
+<a class="sourceLine" id="cb262-17" title="17">    printf(<span class="st">"i is at %lu</span><span class="sc">\n</span><span class="st">"</span>, offsetof(<span class="kw">struct</span> foo, i));</a>
+<a class="sourceLine" id="cb262-18" title="18">    printf(<span class="st">"c is at %lu</span><span class="sc">\n</span><span class="st">"</span>, offsetof(<span class="kw">struct</span> foo, c));</a>
+<a class="sourceLine" id="cb262-19" title="19">    printf(<span class="st">"d is at %lu</span><span class="sc">\n</span><span class="st">"</span>, offsetof(<span class="kw">struct</span> foo, d));</a>
+<a class="sourceLine" id="cb262-20" title="20">    printf(<span class="st">"f is at %lu</span><span class="sc">\n</span><span class="st">"</span>, offsetof(<span class="kw">struct</span> foo, f));</a>
+<a class="sourceLine" id="cb262-21" title="21">    printf(<span class="st">"s is at %lu</span><span class="sc">\n</span><span class="st">"</span>, offsetof(<span class="kw">struct</span> foo, s));</a>
+<a class="sourceLine" id="cb262-22" title="22"></a>
+<a class="sourceLine" id="cb262-23" title="23">    <span class="cf">return</span> <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb262-24" title="24">}</a></code></pre></div>
+<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/structs/offsetof.c">examples/structs/offsetof.c</a>
+</div>
+<h4 id="Bit_fields"><span class="header-section-number">4.11.1.3</span> Bit fields</h4>
+<p>It is possible to specify the exact number of bits taken up by a member of a <code>struct</code> of integer type. This is seldom useful, but may in principle let you pack more information in less space. Bit fields are sometimes used to unpack data from an external source that uses this trick, but this is dangerous, because there is no guarantee that the compiler will order the bit fields in your <code>struct</code> in any particular order (at the very least, you will need to worry about <a href="http://en.wikipedia.org/wiki/Endianness">endianness</a>.</p>
+<p>Example:</p>
+<div class="sourceCode" id="cb263"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb263-1" title="1"><span class="kw">struct</span> color {</a>
+<a class="sourceLine" id="cb263-2" title="2">    <span class="dt">unsigned</span> <span class="dt">int</span> red   : <span class="dv">2</span>;</a>
+<a class="sourceLine" id="cb263-3" title="3">    <span class="dt">unsigned</span> <span class="dt">int</span> green : <span class="dv">2</span>;</a>
+<a class="sourceLine" id="cb263-4" title="4">    <span class="dt">unsigned</span> <span class="dt">int</span> blue  : <span class="dv">2</span>;</a>
+<a class="sourceLine" id="cb263-5" title="5">    <span class="dt">unsigned</span> <span class="dt">int</span> alpha : <span class="dv">2</span>;</a>
+<a class="sourceLine" id="cb263-6" title="6">};</a></code></pre></div>
+<p>This defines a <code>struct</code> that (probably) occupies only one byte, and supplies four 2-bit fields, each of which can hold values in the range 0-3.</p>
+<h3 id="unions"><span class="header-section-number">4.11.2</span> Unions</h3>
+<p>A <code class="backtick">union</code> is just like a <code class="backtick">struct</code>, except that instead of allocating space to store all the components, the compiler only allocates space to store the largest one, and makes all the components refer to the same address. This can be used to save space if you know that only one of several components will be meaningful for a particular object. An example might be a type representing an object in a LISP-like language like Scheme:</p>
+<div class="sourceCode" id="cb264"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb264-1" title="1"><span class="kw">struct</span> lispObject {</a>
+<a class="sourceLine" id="cb264-2" title="2">    <span class="dt">int</span> type;           <span class="co">/* type code */</span></a>
+<a class="sourceLine" id="cb264-3" title="3">    <span class="kw">union</span> {</a>
+<a class="sourceLine" id="cb264-4" title="4">        <span class="dt">int</span>     intVal;</a>
+<a class="sourceLine" id="cb264-5" title="5">        <span class="dt">double</span>  floatVal;</a>
+<a class="sourceLine" id="cb264-6" title="6">        <span class="dt">char</span> *  stringVal;</a>
+<a class="sourceLine" id="cb264-7" title="7">        <span class="kw">struct</span> {</a>
+<a class="sourceLine" id="cb264-8" title="8">            <span class="kw">struct</span> lispObject *car;</a>
+<a class="sourceLine" id="cb264-9" title="9">            <span class="kw">struct</span> lispObject *cdr;</a>
+<a class="sourceLine" id="cb264-10" title="10">        } consVal;</a>
+<a class="sourceLine" id="cb264-11" title="11">    } u;</a>
+<a class="sourceLine" id="cb264-12" title="12">};</a></code></pre></div>
+<p>Now if you wanted to make a <code class="backtick">struct lispObject</code> that held an integer value, you might write</p>
+<div class="sourceCode" id="cb265"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb265-1" title="1">    lispObject o;</a>
+<a class="sourceLine" id="cb265-2" title="2"></a>
+<a class="sourceLine" id="cb265-3" title="3">    o.type = TYPE_INT;</a>
+<a class="sourceLine" id="cb265-4" title="4">    o.u.intVal = <span class="dv">27</span>;</a></code></pre></div>
+<p>Here <code class="backtick">TYPE_INT</code> has presumably been defined somewhere. Note that nothing then prevents you from writing</p>
+<div class="sourceCode" id="cb266"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb266-1" title="1">    x = <span class="fl">2.7</span> * o.u.floatVal;        <span class="co">/* BAD */</span></a></code></pre></div>
+<p>The effects of this will be strange, since it’s likely that the bit pattern representing 27 as an <code class="backtick">int</code> represents something very different as a <code class="backtick">double</code>. Avoiding such mistakes is your responsibility, which is why most uses of <code class="backtick">union</code> occur inside larger <code class="backtick">struct</code>s that contain enough information to figure out which variant of the <code class="backtick">union</code> applies.</p>
+<h3 id="enums"><span class="header-section-number">4.11.3</span> Enums</h3>
+<p>C provides the <code class="backtick">enum</code> construction for the special case where you want to have a sequence of named constants of type <code>int</code>, but you don’t care what their actual values are, as in</p>
+<div class="sourceCode" id="cb267"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb267-1" title="1"><span class="kw">enum</span> color { RED, BLUE, GREEN, MAUVE, TURQUOISE };</a></code></pre></div>
+<p>This will assign the value <code class="backtick">0</code> to <code class="backtick">RED</code>, <code class="backtick">1</code> to <code class="backtick">BLUE</code>, and so on. These values are effectively of type <code class="backtick">int</code>, although you can declare variables, arguments, and return values as type <code class="backtick">enum color</code> to indicate their intended interpretation.</p>
+<p>Despite declaring a variable <code class="backtick">enum color c</code> (say), the compiler will still allow <code class="backtick">c</code> to hold arbitrary values of type <code class="backtick">int</code>.<br/>
+So the following ridiculous code works just fine:</p>
+<div>
+<div class="sourceCode" id="cb268"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb268-1" title="1"><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></a>
+<a class="sourceLine" id="cb268-2" title="2"><span class="pp">#include </span><span class="im">&lt;stdlib.h&gt;</span></a>
+<a class="sourceLine" id="cb268-3" title="3"></a>
+<a class="sourceLine" id="cb268-4" title="4"><span class="kw">enum</span> foo { FOO };</a>
+<a class="sourceLine" id="cb268-5" title="5"><span class="kw">enum</span> apple { MACINTOSH, CORTLAND, RED_DELICIOUS };</a>
+<a class="sourceLine" id="cb268-6" title="6"><span class="kw">enum</span> orange { NAVEL, CLEMENTINE, TANGERINE };</a>
+<a class="sourceLine" id="cb268-7" title="7"></a>
+<a class="sourceLine" id="cb268-8" title="8"><span class="dt">int</span></a>
+<a class="sourceLine" id="cb268-9" title="9">main(<span class="dt">int</span> argc, <span class="dt">char</span> **argv)</a>
+<a class="sourceLine" id="cb268-10" title="10">{</a>
+<a class="sourceLine" id="cb268-11" title="11">    <span class="kw">enum</span> foo x;</a>
+<a class="sourceLine" id="cb268-12" title="12"></a>
+<a class="sourceLine" id="cb268-13" title="13">    <span class="cf">if</span>(argc != <span class="dv">1</span>) {</a>
+<a class="sourceLine" id="cb268-14" title="14">        fprintf(stderr, <span class="st">"Usage: %s</span><span class="sc">\n</span><span class="st">"</span>, argv[<span class="dv">0</span>]);</a>
+<a class="sourceLine" id="cb268-15" title="15">        <span class="cf">return</span> <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb268-16" title="16">    }</a>
+<a class="sourceLine" id="cb268-17" title="17"></a>
+<a class="sourceLine" id="cb268-18" title="18">    printf(<span class="st">"FOO = %d</span><span class="sc">\n</span><span class="st">"</span>, FOO);</a>
+<a class="sourceLine" id="cb268-19" title="19">    printf(<span class="st">"sizeof(enum foo) = %d</span><span class="sc">\n</span><span class="st">"</span>, <span class="kw">sizeof</span>(<span class="kw">enum</span> foo));</a>
+<a class="sourceLine" id="cb268-20" title="20"></a>
+<a class="sourceLine" id="cb268-21" title="21">    x = <span class="dv">127</span>;</a>
+<a class="sourceLine" id="cb268-22" title="22"></a>
+<a class="sourceLine" id="cb268-23" title="23">    printf(<span class="st">"x = %d</span><span class="sc">\n</span><span class="st">"</span>, x);</a>
+<a class="sourceLine" id="cb268-24" title="24"></a>
+<a class="sourceLine" id="cb268-25" title="25">    <span class="co">/* note we can add apples and oranges */</span></a>
+<a class="sourceLine" id="cb268-26" title="26">    printf(<span class="st">"%d</span><span class="sc">\n</span><span class="st">"</span>, RED_DELICIOUS + TANGERINE);</a>
+<a class="sourceLine" id="cb268-27" title="27"></a>
+<a class="sourceLine" id="cb268-28" title="28">    <span class="cf">return</span> <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb268-29" title="29">}</a></code></pre></div>
+<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/definitions/enumsAreInts.c">examples/definitions/enumsAreInts.c</a>
+</div>
+<h4 id="specifying-particular-values"><span class="header-section-number">4.11.3.1</span> Specifying particular values</h4>
+<p>It is also possible to specify particular values for particular enumerated constants, as in</p>
+<div class="sourceCode" id="cb269"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb269-1" title="1"><span class="kw">enum</span> color { RED = <span class="dv">37</span>, BLUE = <span class="dv">12</span>, GREEN = <span class="dv">66</span>, MAUVE = <span class="dv">5</span>, TURQUOISE };</a></code></pre></div>
+<p>Anything that doesn’t get a value starts with one plus the previous value; so the above definition would set <code class="backtick">TURQUOISE</code> to <code class="backtick">6</code>. This may result in two names mapping to the same value.</p>
+<h4 id="what-most-people-do"><span class="header-section-number">4.11.3.2</span> What most people do</h4>
+<p>In practice, <code class="backtick">enum</code>s are seldom used, and you will more commonly see a stack of <code class="backtick">#define</code>s:</p>
+<div class="sourceCode" id="cb270"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb270-1" title="1"><span class="pp">#define RED     (0)</span></a>
+<a class="sourceLine" id="cb270-2" title="2"><span class="pp">#define BLUE    (1)</span></a>
+<a class="sourceLine" id="cb270-3" title="3"><span class="pp">#define GREEN   (2)</span></a>
+<a class="sourceLine" id="cb270-4" title="4"><span class="pp">#define MAUVE   (3)</span></a>
+<a class="sourceLine" id="cb270-5" title="5"><span class="pp">#define TURQUOISE (4)</span></a></code></pre></div>
+<p>The reason for this is partly historical—<code class="backtick">enum</code> arrived late in the evolution of C—but partly practical: a table of <code class="backtick">#define</code>s makes it much easier to figure out which color is represented by 3, without having to count through a list. But if you never plan to use the numerical values, <code class="backtick">enum</code> may be a better choice, because it guarantees that all the values will be distinct.</p>
+<h4 id="enumTagsForUnion"><span class="header-section-number">4.11.3.3</span> Using <code>enum</code> with <code>union</code></h4>
+<p>A natural place to use an <code>enum</code> is to tag a <code>union</code> with the type being used. For example, a Lisp-like language might implement the following multi-purpose data type:</p>
+<div class="sourceCode" id="cb271"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb271-1" title="1"><span class="kw">enum</span> TypeCode { TYPE_INT, TYPE_DOUBLE, TYPE_STRING };</a>
+<a class="sourceLine" id="cb271-2" title="2"></a>
+<a class="sourceLine" id="cb271-3" title="3"><span class="kw">struct</span> LispValue {</a>
+<a class="sourceLine" id="cb271-4" title="4">    <span class="kw">enum</span> TypeCode typeCode;</a>
+<a class="sourceLine" id="cb271-5" title="5">    <span class="kw">union</span> {</a>
+<a class="sourceLine" id="cb271-6" title="6">        <span class="dt">int</span> i;</a>
+<a class="sourceLine" id="cb271-7" title="7">        <span class="dt">double</span> d;</a>
+<a class="sourceLine" id="cb271-8" title="8">        <span class="dt">char</span> *s;</a>
+<a class="sourceLine" id="cb271-9" title="9">    } value;</a>
+<a class="sourceLine" id="cb271-10" title="10">};</a></code></pre></div>
+<p>Here we don’t care what the numeric values of <code>TYPE_INT</code>, <code>TYPE_DOUBLE</code>, and <code>TYPE_STRING</code> are, as long as we can apply <code>switch</code> to <code>typeCode</code> to figure out what to do with one of these things.</p>
