@@ -1,11 +1,8 @@
 from bs4 import BeautifulSoup
 import re
 from pathlib import Path
-import requests
 
-url = "https://www.cs.yale.edu/homes/aspnes/classes/223/notes.html"
-r = requests.get(url, verify = False)
-html = r.content.decode().strip()
+html = open("notes.html")
 soup = BeautifulSoup(html, "html.parser")
 
 Text = open("top.html", "r").read()
@@ -29,8 +26,9 @@ def get_lecture(x: int):
 	global Text
 	for links in days[x][1].find_all("a"):
 		href = links.attrs.get("href", "")
-		if href.startswith("#"):
-			ids.append(href[1:])
+		if href.startswith("temp.html#"):
+			ids.append(href[10:])
+			links.attrs["href"] = "output.html#" + href[10:]
 	Text += str(days[x][0]) + str(days[x][1])
 
 x = int(input())

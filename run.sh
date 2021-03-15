@@ -1,5 +1,7 @@
 set -e
-help="./run.sh lecture_number"
+wget https://www.cs.yale.edu/homes/aspnes/classes/223/notes.html --no-check-certificate --convert-links -O temp.html &> /dev/null
+cp -f temp.html notes.html
+help="./run.sh lecture-number"
 if [ -z "$1" ]; then
 	echo "error: No homework number supplied"
 	echo $help

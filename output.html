@@ -341,7 +341,7 @@ page-break-after: avoid;
 }
 }
 </style>
-<dt>2021-03-10</dt><dd>Managing large C programs: more on source files vs header files, <code>static</code> functions, opaque structs and typedefs, linking, <code>make</code>. The <code>stdio.h</code> library and file I/O. Readings: <a href="#modules">Function declarations and modules</a>, <a href="#make">Make</a>, <a href="#FILE_IO">File I/O</a>. <a href="examples/2021/lecture/2021-03-10">Examples from lecture</a>.
+<dt>2021-03-10</dt><dd>Managing large C programs: more on source files vs header files, <code>static</code> functions, opaque structs and typedefs, linking, <code>make</code>. The <code>stdio.h</code> library and file I/O. Readings: <a href="output.html#modules">Function declarations and modules</a>, <a href="output.html#make">Make</a>, <a href="output.html#FILE_IO">File I/O</a>. <a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/2021/lecture/2021-03-10">Examples from lecture</a>.
 </dd><h3 id="modules"><span class="header-section-number">4.8.5</span> Function declarations and modules</h3>
 <p>By default, functions have <strong>global scope</strong>: they can be used anywhere in your program, even in other files. If a file doesn’t contain a declaration for a function <code class="backtick">someFunc</code> before it is used, the compiler will assume that it is declared like <code class="backtick">int someFunc()</code> (i.e., return type <code class="backtick">int</code> and unknown arguments). This can produce infuriating complaints later when the compiler hits the real declaration and insists that your function <code class="backtick">someFunc</code> should be returning an <code class="backtick">int</code> and you are a bonehead for declaring it otherwise.</p>
 <p>The solution to such insulting compiler behavior errors is to either (a) move the function declaration before any functions that use it; or (b) put in a declaration without a body before any functions that use it, in addition to the declaration that appears in the function definition. (Note that this violates the <strong>no separate but equal</strong> rule, but the compiler should tell you when you make a mistake.) Option (b) is generally preferred, and is the only option when the function is used in a different file.</p>
@@ -354,14 +354,14 @@ page-break-after: avoid;
 <a class="sourceLine" id="cb187-5" title="5">{</a>
 <a class="sourceLine" id="cb187-6" title="6">    <span class="cf">return</span> dx*dx + dy*dy;</a>
 <a class="sourceLine" id="cb187-7" title="7">}</a></code></pre></div>
-<a href="examples/functions/distSquared.c">examples/functions/distSquared.c</a>
+<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/functions/distSquared.c">examples/functions/distSquared.c</a>
 </div>
 <p>The file <code>distSquared.c</code> above uses <code class="backtick">#include</code> to include a copy of the following header file <code>distSquared.h</code>:</p>
 <div>
 <div class="sourceCode" id="cb188"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb188-1" title="1"><span class="co">/* Returns the square of the distance between two points separated by </span></a>
 <a class="sourceLine" id="cb188-2" title="2"><span class="co">   dx in the x direction and dy in the y direction. */</span></a>
 <a class="sourceLine" id="cb188-3" title="3"><span class="dt">int</span> distSquared(<span class="dt">int</span> dx, <span class="dt">int</span> dy);</a></code></pre></div>
-<a href="examples/functions/distSquared.h">examples/functions/distSquared.h</a>
+<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/functions/distSquared.h">examples/functions/distSquared.h</a>
 </div>
 <p>Note that the declaration in <code class="backtick">distSquared.h</code> doesn’t have a body. Instead, it’s terminated by a semicolon, like a variable declaration. It’s also worth noting that we moved the documenting comment to <code class="backtick">distSquared.h</code>: the idea is that <code class="backtick">distSquared.h</code> is the public face of this (very small one-function) module, and so the explanation of how to use the function should be there.</p>
 <p>The reason <code class="backtick">distSquared.c</code> includes <code class="backtick">distSquared.h</code> is to get the compiler to verify that the declarations in the two files match. But to use the <code class="backtick">distSquared</code> function, we also put <code class="backtick">#include "distSquared.h"</code> at the top of the file that uses it:</p>
@@ -375,7 +375,7 @@ page-break-after: avoid;
 <a class="sourceLine" id="cb189-7" title="7">{</a>
 <a class="sourceLine" id="cb189-8" title="8">    <span class="cf">return</span> distSquared(x1 - x2, y1 - y2) &lt; THRESHOLD;</a>
 <a class="sourceLine" id="cb189-9" title="9">}</a></code></pre></div>
-<a href="examples/functions/tooClose.c">examples/functions/tooClose.c</a>
+<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/functions/tooClose.c">examples/functions/tooClose.c</a>
 </div>
 <p>The <code class="backtick">#include</code> on line 1 uses double quotes instead of angle brackets; this tells the compiler to look for <code class="backtick">distSquared.h</code> in the current directory instead of the system include directory (typically <code class="backtick">/usr/include</code>).</p>
 <h3 id="make"><span class="header-section-number">3.3.2</span> Make</h3>
@@ -430,7 +430,7 @@ page-break-after: avoid;
 <a class="sourceLine" id="cb12-45" title="45"><span class="co"># rebuild.  The $(RM) variable is predefined to "rm -f"</span></a>
 <a class="sourceLine" id="cb12-46" title="46"><span class="dv">clean:</span></a>
 <a class="sourceLine" id="cb12-47" title="47">	<span class="ch">$(</span><span class="dt">RM</span><span class="ch">)</span> hello-world *.o</a></code></pre></div>
-<a href="examples/usingMake/Makefile">examples/usingMake/Makefile</a>
+<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/usingMake/Makefile">examples/usingMake/Makefile</a>
 </div>
 <p>Given a Makefile, make looks at each dependency line and asks: (a) does the target on the left hand side exist, and (b) is it older than the files it depends on. If so, it looks for a set of commands for rebuilding the target, after first rebuilding any of the files it depends on; the commands it runs will be underneath some dependency line where the target appears on the left-hand side. It has built-in rules for doing common tasks like building <code>.o</code> files (which contain machine code) from <code>.c</code> files (which contain C source code). If you have a fake target like <code>all</code> above, it will try to rebuild everything <code>all</code> depends on because there is no file named <code>all</code> (one hopes).</p>
 <h4 id="Make_gotchas"><span class="header-section-number">3.3.2.1</span> Make gotchas</h4>
