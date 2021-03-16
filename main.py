@@ -2,10 +2,10 @@ from bs4 import BeautifulSoup
 import re
 from pathlib import Path
 
-html = open("notes.html")
+html = open(Path(__file__).parent / "notes.html")
 soup = BeautifulSoup(html, "html.parser")
 
-Text = open("top.html", "r").read()
+Text = open(Path(__file__).parent / "top.html", "r").read()
 sched = soup.find_all(lambda tag: tag.name == "span" and tag.text == "1.2")[-1].parent
 sched_list = sched.next_sibling
 while sched_list.name != "dl":

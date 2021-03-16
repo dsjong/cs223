@@ -350,7 +350,7 @@ page-break-after: avoid;
 <header id="title-block-header">
 <h1 class="title">Notes on Data Structures and Programming Techniques (CPSC 223, Spring 2021)</h1>
 <p class="author">James Aspnes</p>
-<p class="date">2021-03-15T00:26:31-0400</p>
+<p class="date">2021-03-15T12:11:58-0400</p>
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
@@ -7035,7 +7035,7 @@ Hi there!</code></pre>
 </ol>
 <p>The idea of ’‘’asymptotic notation’’’ is to consider the shape of the worst-case cost <span class="math inline"><em>T</em>(<em>n</em>)</span> to process an input of size <span class="math inline"><em>n</em></span>. Here, worst-case means we consider the input that gives the greatest cost, where cost is usually time, but may be something else like space. To formalize the notion of shape, we define classes of functions that behave like particular interesting functions for large inputs. The definition looks much like a limit in calculus:</p>
 <dl>
-<dt><span class="math inline"><em>O</em>(<em>n</em>)</span></dt>
+<dt><span class="math inline"><em>O</em>(<em>g</em>(<em>n</em>))</span></dt>
 <dd>A function <span class="math inline"><em>f</em>(<em>n</em>)</span> is in the class <span class="math inline"><em>O</em>(<em>g</em>(<em>n</em>))</span> if there exist constants <span class="math inline"><em>N</em></span> and <span class="math inline"><em>c</em></span> such that <span class="math inline"><em>f</em>(<em>n</em>) &lt; <em>c</em> ⋅ <em>g</em>(<em>n</em>)</span> when <span class="math inline"><em>n</em> &gt; <em>N</em></span>.
 </dd>
 </dl>
@@ -7108,7 +7108,7 @@ Hi there!</code></pre>
 <h3 id="other-variants-of-asymptotic-notation"><span class="header-section-number">5.1.4</span> Other variants of asymptotic notation</h3>
 <p>Big-O notation is good for upper bounds, but the inequality in the definition means that it can’t be used for anything else: it is the case that <span class="math inline">12 = <em>O</em>(<em>n</em><sup>67</sup>)</span> just because <span class="math inline">12 &lt; <em>n</em><sup>67</sup></span> when <span class="math inline"><em>n</em></span> is large enough. There is an alternative definition, called ’‘’big-Omega’’’, that works in the other direction:</p>
 <dl>
-<dt><span class="math inline"><em>Ω</em>(<em>n</em>)</span></dt>
+<dt><span class="math inline"><em>Ω</em>(<em>g</em>(<em>n</em>))</span></dt>
 <dd>A function <span class="math inline"><em>f</em>(<em>n</em>)</span> is in the class <span class="math inline"><em>Ω</em>(<em>g</em>(<em>n</em>))</span> if there exist constants <span class="math inline"><em>N</em></span> and <span class="math inline"><em>c</em></span> such that <span class="math inline"><em>f</em>(<em>n</em>) &gt; <em>c</em> ⋅ <em>g</em>(<em>n</em>)</span> when <span class="math inline"><em>n</em> &gt; <em>N</em></span>.
 </dd>
 </dl>
@@ -8103,7 +8103,7 @@ Now stepping by 3:
 <li>A list of grades,</li>
 <li>A grade.</li>
 </ul>
-<p>If grades are simple, we might be able to make them just be <code>int</code>s (or maybe <code>double</code>s); to be on the safe side, we should probably create a <code>Grade</code> type with a <code>typedef</code>. The other types are likely to be more complicated. Each student might have in addition to his or her grades a long list of other attributes, such as a name, an email address, etc. By wrapping students up as abstract data types we can extend these attributes if we need to, or allow for very general implementations (say, by allowing a student to have an arbitrary list of keyword-attribute pairs). The two kinds of lists are likely to be examples of <em>sequence</em> types; we’ll be seeing a lot of ways to implement these as the course progresses. If we want to perform the same kinds of operations on both lists, we might want to try to implement them as a single list data type, which then is specialized to hold either students or grades; this is not always easy to do in C, but we’ll see examples of how to do this, too.</p>
+<p>If grades are simple, we might be able to make them just be <code>int</code>s (or maybe <code>double</code>s); to be on the safe side, we should probably create a <code>Grade</code> type with a <code>typedef</code>. The other types are likely to be more complicated. Each student might have in addition to their grades a long list of other attributes, such as a name, an email address, etc. By wrapping students up as abstract data types we can extend these attributes if we need to, or allow for very general implementations (say, by allowing a student to have an arbitrary list of keyword-attribute pairs). The two kinds of lists are likely to be examples of <em>sequence</em> types; we’ll be seeing a lot of ways to implement these as the course progresses. If we want to perform the same kinds of operations on both lists, we might want to try to implement them as a single list data type, which then is specialized to hold either students or grades; this is not always easy to do in C, but we’ll see examples of how to do this, too.</p>
 <p>Whether or not this set of four types is the set we will finally use, writing it down gives us a place to start writing our program. We can start writing interface files for each of the data types, and then evolve their implementations and the main program in parallel, adjusting the interfaces as we find that we have provided too little (or too much) data for each component to do what it must.</p>
 <h2 id="hashTables"><span class="header-section-number">5.4</span> Hash tables</h2>
 <p>A <strong>hash table</strong> is a randomized data structure that supports the INSERT, DELETE, and FIND operations in expected <span class="math inline"><em>O</em>(1)</span> time. The core idea behind hash tables is to use a <em>hash function</em> that maps a large keyspace to a smaller domain of array indices, and then use constant-time array operations to store and retrieve the data.</p>

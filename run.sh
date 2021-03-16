@@ -1,3 +1,6 @@
+#!/bin/bash
+FOLDER=$(dirname "$BASH_SOURCE")
+cd "$FOLDER"
 set -e
 wget https://www.cs.yale.edu/homes/aspnes/classes/223/notes.html --no-check-certificate --convert-links -O temp.html &> /dev/null
 cp -f temp.html notes.html
