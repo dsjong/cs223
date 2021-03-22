@@ -5,7 +5,15 @@ from pathlib import Path
 html = open(Path(__file__).parent / "notes.html")
 soup = BeautifulSoup(html, "html.parser")
 
-Text = open(Path(__file__).parent / "top.html", "r").read()
+head = open(Path(__file__).parent / "top.html")
+soup2 = BeautifulSoup(head, "html.parser")
+
+x = int(input())
+
+title = soup2.find("title")
+title.string = f"LEC{x}"
+Text = str(soup2)
+
 sched = soup.find_all(lambda tag: tag.name == "span" and tag.text == "1.2")[-1].parent
 sched_list = sched.next_sibling
 while sched_list.name != "dl":
@@ -31,7 +39,6 @@ def get_lecture(x: int):
 			links.attrs["href"] = "output.html#" + href[10:]
 	Text += str(days[x][0]) + str(days[x][1])
 
-x = int(input())
 get_lecture(x)
 
 for _id in ids:

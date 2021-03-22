@@ -5,7 +5,15 @@ from pathlib import Path
 html = open(Path(__file__).parent / "notes.html")
 soup = BeautifulSoup(html, "html.parser")
 
-Text = open(Path(__file__).parent / "top.html", "r").read()
+head = open(Path(__file__).parent / "top.html")
+soup2 = BeautifulSoup(head, "html.parser")
+
+x = int(input())
+
+title = soup2.find("title")
+title.string = f"HW{x}"
+Text = str(soup2)
+
 header = soup.find_all(lambda tag: tag.name == "span" and tag.text == "8")[-1].parent
 
 ids = []
@@ -15,7 +23,6 @@ while sib != None and (sib.name == None or sib.name[:-1] != "h" or int(sib.name[
 		ids += [sib.get("id")]
 	sib = sib.next_sibling
 
-x = int(input())
 _id = ids[x-1]
 header = soup.find(re.compile('^h[1-6]$'), {"id": _id})
 if header == None:

@@ -1,18 +1,18 @@
 <!DOCTYPE html>
+
 <!-- saved from url=(0059)https://www.cs.yale.edu/homes/aspnes/classes/223/notes.html -->
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang=""><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  
-  <meta name="generator" content="pandoc">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <meta name="author" content="James Aspnes">
-  <title>Generated Excerpt</title>
-  <style>
+<html lang="" xml:lang="" xmlns="http://www.w3.org/1999/xhtml"><head><meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<meta content="pandoc" name="generator"/>
+<meta content="width=device-width, initial-scale=1.0, user-scalable=yes" name="viewport"/>
+<meta content="James Aspnes" name="author"/>
+<title>LEC 5</title>
+<style>
       code{white-space: pre-wrap;}
       span.smallcaps{font-variant: small-caps;}
       span.underline{text-decoration: underline;}
       div.column{display: inline-block; vertical-align: top; width: 50%;}
   </style>
-  <style>
+<style>
 a.sourceLine { display: inline-block; line-height: 1.25; }
 a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
 a.sourceLine:empty { height: 1.2em; }
@@ -75,7 +75,7 @@ code span.va { color: #19177c; } /* Variable */
 code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   </style>
-  <style type="text/css">
+<style type="text/css">
 html {
 font-size: 100%;
 overflow-y: scroll;
@@ -341,78 +341,321 @@ page-break-after: avoid;
 }
 }
 </style>
-<h2 id="hw6-2021"><span class="header-section-number">8.6</span> Assignment 6, due 2021-03-26 at 17:00 Eastern US time</h2>
-<p>For this assignment, you are to implement a data structure that represents a editable buffer in a text editor. The contents of the buffer, conceptually, are a string of zero or more non-null characters, followed by a null, although the actual representation might be different. When the buffer is created, the user specifies that it should have zero or more cursors, indexes into the buffer that can be used as locations to insert new characters. Inserting a character does not change what character each cursor points to, but functions are provided to move cursors forward or backward within the buffer.</p>
-<p>For example, in the picture below, the bottom line represents the text in the buffer while the numbers on the top line represent the location of three cursors numbered 0, 1, and 2:</p>
-<pre><code>  0  2  1
-abcdefghij</code></pre>
-<p>If we insert an <code>X</code> before cursor 2, the new state will look like this:</p>
-<pre><code>  0   2  1
-abcdeXfghij</code></pre>
-<p>We can now call a function to move cursor 2 back one position, to put it on the <code>X</code>:</p>
-<pre><code>  0  2   1
-abcdeXfghij</code></pre>
-<p>If we now insert a <code>Y</code> before cursor 0, we get this:</p>
-<pre><code>   0  2   1
-abYcdeXfghij</code></pre>
-<p>By continuing to insert new characters, and possibly moving the cursors around, we can generate a string of arbitrary length. This string can then be extracted as a standard C string in a malloc’d block using an accessor function.</p>
-<p>The full interface is given in the file <code>/c/cs223/Hwk6/buffer.h</code>, reproduced below.</p>
+</head></html><dt>2021-02-15</dt><dd>Goto-like control statements: <code>break</code>, <code>continue</code>, <code>goto</code>. Function basics. Readings: <a href="output.html#gotoLikeStatements">Loops with break, continue, and goto</a>, <a href="output.html#functions">Functions</a> through <a href="output.html#modules">Function declarations and modules</a>; K&amp;R §§3.7, 3.8, 4.1–4.5. <a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/2021/lecture/2021-02-15">Examples from lecture</a>. The <code>factor.c</code> and <code>printFactors.c</code> files should be compiled together with <code>printFactors.h</code> available; the other <code>.c</code> files are standalone.
+</dd><h5 id="gotoLikeStatements"><span class="header-section-number">4.7.2.2.4</span> Loops with break, continue, and goto</h5>
+<p>The <code class="backtick">break</code> statement immediately exits the innermmost enclosing loop or <code class="backtick">switch</code> statement.</p>
+<div class="sourceCode" id="cb169"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb169-1" title="1">    <span class="cf">for</span>(i = <span class="dv">0</span>; i &lt; n; i++) {</a>
+<a class="sourceLine" id="cb169-2" title="2">        openDoorNumber(i);</a>
+<a class="sourceLine" id="cb169-3" title="3">        <span class="cf">if</span>(boobyTrapped()) {</a>
+<a class="sourceLine" id="cb169-4" title="4">            <span class="cf">break</span>;</a>
+<a class="sourceLine" id="cb169-5" title="5">        }</a>
+<a class="sourceLine" id="cb169-6" title="6">    }</a></code></pre></div>
+<p>The <code class="backtick">continue</code> statement skips to the next iteration. Here is a program with a loop that iterates through all the integers from -10 through 10, skipping 0:</p>
 <div>
-<div class="sourceCode" id="cb540"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb540-1" title="1"><span class="co">// Abstract data type for an editable string buffer.</span></a>
-<a class="sourceLine" id="cb540-2" title="2"><span class="co">//</span></a>
-<a class="sourceLine" id="cb540-3" title="3"><span class="co">// A buffer is a sequence of zero or more non-null characters</span></a>
-<a class="sourceLine" id="cb540-4" title="4"><span class="co">// followed by a null.</span></a>
-<a class="sourceLine" id="cb540-5" title="5"><span class="co">//</span></a>
-<a class="sourceLine" id="cb540-6" title="6"><span class="co">// It also tracks n cursor positions, each of which is a pointer</span></a>
-<a class="sourceLine" id="cb540-7" title="7"><span class="co">// to some character.</span></a>
-<a class="sourceLine" id="cb540-8" title="8"><span class="co">//</span></a>
-<a class="sourceLine" id="cb540-9" title="9"><span class="co">// Initially, the buffer is empty, and all cursors point to the null.</span></a>
-<a class="sourceLine" id="cb540-10" title="10"><span class="co">//</span></a>
-<a class="sourceLine" id="cb540-11" title="11"><span class="co">// For the functions bufferInsert, bufferCursorForward,</span></a>
-<a class="sourceLine" id="cb540-12" title="12"><span class="co">// and BufferCursorBack, specifying a cursor index that is</span></a>
-<a class="sourceLine" id="cb540-13" title="13"><span class="co">// too large results in the function having no effect.</span></a>
-<a class="sourceLine" id="cb540-14" title="14"></a>
-<a class="sourceLine" id="cb540-15" title="15"><span class="kw">typedef</span> <span class="kw">struct</span> buffer *Buffer;</a>
-<a class="sourceLine" id="cb540-16" title="16"></a>
-<a class="sourceLine" id="cb540-17" title="17"><span class="co">// Make a buffer with n cursors.</span></a>
-<a class="sourceLine" id="cb540-18" title="18">Buffer bufferCreate(<span class="dt">size_t</span> n);</a>
-<a class="sourceLine" id="cb540-19" title="19"></a>
-<a class="sourceLine" id="cb540-20" title="20"><span class="co">// Free all space used by a buffer.</span></a>
-<a class="sourceLine" id="cb540-21" title="21"><span class="dt">void</span> bufferDestroy(Buffer b);</a>
-<a class="sourceLine" id="cb540-22" title="22"></a>
-<a class="sourceLine" id="cb540-23" title="23"><span class="co">// Insert a new non-null character before the i-th cursor position.</span></a>
-<a class="sourceLine" id="cb540-24" title="24"><span class="co">// All cursors continue to point to the same character</span></a>
-<a class="sourceLine" id="cb540-25" title="25"><span class="co">// they pointed to before.</span></a>
-<a class="sourceLine" id="cb540-26" title="26"><span class="co">// If i is out of range or c is '\0', has no effect.</span></a>
-<a class="sourceLine" id="cb540-27" title="27"><span class="dt">void</span> bufferInsert(Buffer b, <span class="dt">size_t</span> i, <span class="dt">char</span> c);</a>
-<a class="sourceLine" id="cb540-28" title="28"></a>
-<a class="sourceLine" id="cb540-29" title="29"><span class="co">// Advance cursor i one position.</span></a>
-<a class="sourceLine" id="cb540-30" title="30"><span class="co">// If i is out of range, or the i-th cursor</span></a>
-<a class="sourceLine" id="cb540-31" title="31"><span class="co">// already points to the final '\0',</span></a>
-<a class="sourceLine" id="cb540-32" title="32"><span class="co">// has no effect.</span></a>
-<a class="sourceLine" id="cb540-33" title="33"><span class="dt">void</span> bufferCursorForward(Buffer b, <span class="dt">size_t</span> i);</a>
-<a class="sourceLine" id="cb540-34" title="34"></a>
-<a class="sourceLine" id="cb540-35" title="35"><span class="co">// Move cursor i back one position.</span></a>
-<a class="sourceLine" id="cb540-36" title="36"><span class="co">// If i is out of range, or the i-th cursor</span></a>
-<a class="sourceLine" id="cb540-37" title="37"><span class="co">// already points to the first character,</span></a>
-<a class="sourceLine" id="cb540-38" title="38"><span class="co">// has no effect.</span></a>
-<a class="sourceLine" id="cb540-39" title="39"><span class="dt">void</span> bufferCursorBack(Buffer b, <span class="dt">size_t</span> i);</a>
-<a class="sourceLine" id="cb540-40" title="40"></a>
-<a class="sourceLine" id="cb540-41" title="41"><span class="co">// Return the number of cursors in a buffer</span></a>
-<a class="sourceLine" id="cb540-42" title="42"><span class="dt">size_t</span> bufferCursors(Buffer b);</a>
-<a class="sourceLine" id="cb540-43" title="43"></a>
-<a class="sourceLine" id="cb540-44" title="44"><span class="co">// Return the number of characters in a buffer,</span></a>
-<a class="sourceLine" id="cb540-45" title="45"><span class="co">// not including the final null.</span></a>
-<a class="sourceLine" id="cb540-46" title="46"><span class="dt">size_t</span> bufferSize(Buffer b);</a>
-<a class="sourceLine" id="cb540-47" title="47"></a>
-<a class="sourceLine" id="cb540-48" title="48"><span class="co">// Return the characters in a buffer</span></a>
-<a class="sourceLine" id="cb540-49" title="49"><span class="co">// as a null-terminated sequence of chars.</span></a>
-<a class="sourceLine" id="cb540-50" title="50"><span class="co">// Return value is malloc'd and should be freed by caller.</span></a>
-<a class="sourceLine" id="cb540-51" title="51"><span class="dt">char</span> *bufferContents(Buffer b);</a></code></pre></div>
-<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/2021/hw/6/buffer.h">examples/2021/hw/6/buffer.h</a>
+<div class="sourceCode" id="cb170"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb170-1" title="1"><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></a>
+<a class="sourceLine" id="cb170-2" title="2"></a>
+<a class="sourceLine" id="cb170-3" title="3"><span class="co">/* print a table of inverses */</span></a>
+<a class="sourceLine" id="cb170-4" title="4"><span class="pp">#define MAXN (10)</span></a>
+<a class="sourceLine" id="cb170-5" title="5"></a>
+<a class="sourceLine" id="cb170-6" title="6"><span class="dt">int</span></a>
+<a class="sourceLine" id="cb170-7" title="7">main(<span class="dt">int</span> argc, <span class="dt">char</span> **argv)</a>
+<a class="sourceLine" id="cb170-8" title="8">{</a>
+<a class="sourceLine" id="cb170-9" title="9">    <span class="dt">int</span> n;</a>
+<a class="sourceLine" id="cb170-10" title="10"></a>
+<a class="sourceLine" id="cb170-11" title="11">    <span class="cf">for</span>(n = -MAXN; n &lt;= MAXN; n++) {</a>
+<a class="sourceLine" id="cb170-12" title="12">        <span class="cf">if</span>(n == <span class="dv">0</span>) <span class="cf">continue</span>;</a>
+<a class="sourceLine" id="cb170-13" title="13">        printf(<span class="st">"1.0/%3d = %+f</span><span class="sc">\n</span><span class="st">"</span>, n, <span class="fl">1.0</span>/n);</a>
+<a class="sourceLine" id="cb170-14" title="14">    }</a>
+<a class="sourceLine" id="cb170-15" title="15"></a>
+<a class="sourceLine" id="cb170-16" title="16">    <span class="cf">return</span> <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb170-17" title="17">}</a></code></pre></div>
+<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/statements/inverses.c">examples/statements/inverses.c</a>
 </div>
-<p>The same directory also includes a sample <a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/2021/hw/6/Makefile">Makefile</a>; a <a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/2021/hw/6/editor.c">main program</a> for a simple text editor that compiles against an implementation of the buffer data type in a file <code>buffer.c</code> that you are asked to provide; and a <a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/2021/hw/6/randomizer.c">fuzz tester</a> that generates consistent pseudorandom input for the editor.</p>
-<h3 id="testing-your-assignment-4"><span class="header-section-number">8.6.1</span> Testing your assignment</h3>
-<p>Some sample inputs and outputs for the editor are provided in the directory <code>/c/cs223/Hwk6/testFiles</code>. The number at the start of each input file name specifies what argument to give to <code>editor</code> to get the corresponding output. The public test script <code>/c/cs223/Hwk6/test.public</code> will run these tests (and a few valgrind tests) on the <code>buffer.c</code> file in your current directory. You can also use <code>/c/cs223/Hwk6/testit 6 public</code> to run this script on your submitted file.</p>
-<h3 id="submitting-your-assignment-5"><span class="header-section-number">8.6.2</span> Submitting your assignment</h3>
-<p>Submit your file <code>buffer.c</code> as usual with <code>/c/cs223/bin/submit 6 buffer.c</code>. You do not need to submit any other files.</p>
+<p>Occasionally, one would like to break out of more than one nested loop. The way to do this is with a <code class="backtick">goto</code> statement.</p>
+<div class="sourceCode" id="cb171"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb171-1" title="1">    <span class="cf">for</span>(i = <span class="dv">0</span>; i &lt; n; i++) {</a>
+<a class="sourceLine" id="cb171-2" title="2">        <span class="cf">for</span>(j = <span class="dv">0</span>; j &lt; n; j++) {</a>
+<a class="sourceLine" id="cb171-3" title="3">            doSomethingTimeConsumingWith(i, j);</a>
+<a class="sourceLine" id="cb171-4" title="4">            <span class="cf">if</span>(checkWatch() == OUT_OF_TIME) {</a>
+<a class="sourceLine" id="cb171-5" title="5">                <span class="cf">goto</span> giveUp;</a>
+<a class="sourceLine" id="cb171-6" title="6">            }</a>
+<a class="sourceLine" id="cb171-7" title="7">        }</a>
+<a class="sourceLine" id="cb171-8" title="8">    }</a>
+<a class="sourceLine" id="cb171-9" title="9">giveUp:</a>
+<a class="sourceLine" id="cb171-10" title="10">    puts(<span class="st">"done"</span>);</a></code></pre></div>
+<p>The target for the <code class="backtick">goto</code> is a <strong>label</strong>, which is just an identifier followed by a colon and a statement (the empty statement <code class="backtick">;</code> is ok).</p>
+<p>The <code class="backtick">goto</code> statement can be used to jump anywhere within the same function body, but breaking out of nested loops is widely considered to be its only genuinely acceptable use in normal code.</p>
+<h2 id="functions"><span class="header-section-number">4.8</span> Functions</h2>
+<p>A <strong>function</strong>, <strong>procedure</strong>, or <strong>subroutine</strong> encapsulates some complex computation as a single operation. Typically, when we <strong>call</strong> a function, we pass as <strong>arguments</strong> all the information this function needs, and any effect it has will be reflected in either its <strong>return value</strong> or (in some cases) in changes to values pointed to by the arguments. Inside the function, the arguments are copied into local variables, which can be used just like any other local variable—they can even be assigned to without affecting the original argument.</p>
+<h3 id="functionDefinitions"><span class="header-section-number">4.8.1</span> Function definitions</h3>
+<p>A typical function definition looks like this:</p>
+<div>
+<div class="sourceCode" id="cb176"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb176-1" title="1"><span class="co">/* Returns the square of the distance between two points separated by </span></a>
+<a class="sourceLine" id="cb176-2" title="2"><span class="co">   dx in the x direction and dy in the y direction. */</span></a>
+<a class="sourceLine" id="cb176-3" title="3"><span class="dt">int</span></a>
+<a class="sourceLine" id="cb176-4" title="4">distSquared(<span class="dt">int</span> dx, <span class="dt">int</span> dy)</a>
+<a class="sourceLine" id="cb176-5" title="5">{</a>
+<a class="sourceLine" id="cb176-6" title="6">    <span class="cf">return</span> dx*dx + dy*dy;</a>
+<a class="sourceLine" id="cb176-7" title="7">}</a></code></pre></div>
+<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/functions/distSquaredNoHeader.c">examples/functions/distSquaredNoHeader.c</a>
+</div>
+<p>The part outside the braces is called the <strong>function declaration</strong>; the braces and their contents is the <strong>function body</strong>.</p>
+<p>Like most complex declarations in C, once you delete the type names the declaration looks like how the function is used: the name of the function comes before the parentheses and the arguments inside. The <code class="backtick">int</code>s scattered about specify the type of the return value of the function (before the function name) and of the parameters (inside the parentheses after the function name); these are used by the compiler to determine how to pass values in and out of the function and (usually for more complex types, since numerical types will often convert automatically) to detect type mismatches.</p>
+<p>If you want to define a function that doesn’t return anything, declare its return type as <code class="backtick">void</code>. You should also declare a parameter list of <code class="backtick">void</code> if the function takes no arguments.</p>
+<div>
+<div class="sourceCode" id="cb177"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb177-1" title="1"><span class="co">/* Prints "hi" to stdout */</span></a>
+<a class="sourceLine" id="cb177-2" title="2"><span class="dt">void</span></a>
+<a class="sourceLine" id="cb177-3" title="3">helloWorld(<span class="dt">void</span>)</a>
+<a class="sourceLine" id="cb177-4" title="4">{</a>
+<a class="sourceLine" id="cb177-5" title="5">    puts(<span class="st">"hi"</span>);</a>
+<a class="sourceLine" id="cb177-6" title="6">}</a></code></pre></div>
+<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/functions/helloWorld.c">examples/functions/helloWorld.c</a>
+</div>
+<p>It is not strictly speaking an error to omit the second <code class="backtick">void</code> here. Putting <code class="backtick">void</code> in for the parameters tells the compiler to enforce that no arguments are passed in. If we had instead declared <code class="backtick">helloWorld</code> as</p>
+<div class="sourceCode" id="cb178"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb178-1" title="1"><span class="co">/* Prints "hi" to stdout */</span></a>
+<a class="sourceLine" id="cb178-2" title="2"><span class="dt">void</span></a>
+<a class="sourceLine" id="cb178-3" title="3">helloWorld()    <span class="co">/* </span><span class="al">DANGER</span><span class="co">! */</span></a>
+<a class="sourceLine" id="cb178-4" title="4">{</a>
+<a class="sourceLine" id="cb178-5" title="5">    puts(<span class="st">"hi"</span>);</a>
+<a class="sourceLine" id="cb178-6" title="6">}</a></code></pre></div>
+<p>it would be possible to call it as</p>
+<div class="sourceCode" id="cb179"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb179-1" title="1">    helloWorld(<span class="st">"this is a bogus argument"</span>);</a></code></pre></div>
+<p>without causing an error. The reason is that a function declaration with no arguments means that the function can take an unspecified number of arguments, and it’s up to the user to make sure they pass in the right ones. There are good historical reasons for what may seem like obvious lack of sense in the design of the language here, and fixing this bug would break most C code written before 1989. But you shouldn’t ever write a function declaration with an empty argument list, since you want the compiler to know when something goes wrong.</p>
+<h3 id="functionIdeology"><span class="header-section-number">4.8.2</span> When to write a function</h3>
+<p>As with any kind of abstraction, there are two goals to making a function:</p>
+<ul>
+<li><strong>Encapsulation:</strong> If you have some task to carry out that is simple do describe from the outside but messy to understand from the inside, wrapping it in a function lets somebody carry out this task without having to know the details. This is also useful if you want to change the implementation later.</li>
+<li><strong>Code re-use:</strong> If you find yourself writing the same lines of code in several places (or worse, are tempted to copy a block of code to several places), you should probably put this code in a function (or perhaps more than one function, if there is no succinct way to describe what this block of code is doing).</li>
+</ul>
+<p>Both of these goals may be trumped by the goal of making your code understandable. If you can’t describe what a function is doing in a single, simple sentence, this is a sign that maybe you need to restructure your code. Having a function that does more than one thing (or does different thing depending on its arguments) is likely to lead to confusion. So, for example, this is not a good function definition:</p>
+<div class="sourceCode" id="cb180"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb180-1" title="1"><span class="co">/*** </span><span class="al">###</span><span class="co"> UGLY CODE AHEAD </span><span class="al">###</span><span class="co"> ***/</span></a>
+<a class="sourceLine" id="cb180-2" title="2"></a>
+<a class="sourceLine" id="cb180-3" title="3"><span class="co">/*</span></a>
+<a class="sourceLine" id="cb180-4" title="4"><span class="co"> * If getMaximum is true, return maximum of x and y,</span></a>
+<a class="sourceLine" id="cb180-5" title="5"><span class="co"> * else return minimum.</span></a>
+<a class="sourceLine" id="cb180-6" title="6"><span class="co"> */</span></a>
+<a class="sourceLine" id="cb180-7" title="7"><span class="dt">int</span></a>
+<a class="sourceLine" id="cb180-8" title="8">computeMaximumOrMinimum(<span class="dt">int</span> x, <span class="dt">int</span> y, <span class="dt">int</span> getMaximum)</a>
+<a class="sourceLine" id="cb180-9" title="9">{</a>
+<a class="sourceLine" id="cb180-10" title="10">    <span class="cf">if</span>(x &gt; y) {</a>
+<a class="sourceLine" id="cb180-11" title="11">        <span class="cf">if</span>(getMaximum) {</a>
+<a class="sourceLine" id="cb180-12" title="12">            <span class="cf">return</span> x;</a>
+<a class="sourceLine" id="cb180-13" title="13">        } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb180-14" title="14">            <span class="cf">return</span> y;</a>
+<a class="sourceLine" id="cb180-15" title="15">        }</a>
+<a class="sourceLine" id="cb180-16" title="16">    } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb180-17" title="17">        <span class="cf">if</span>(getMaximum) {</a>
+<a class="sourceLine" id="cb180-18" title="18">            <span class="cf">return</span> y;</a>
+<a class="sourceLine" id="cb180-19" title="19">        } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb180-20" title="20">            <span class="cf">return</span> x;</a>
+<a class="sourceLine" id="cb180-21" title="21">        }</a>
+<a class="sourceLine" id="cb180-22" title="22">    }</a>
+<a class="sourceLine" id="cb180-23" title="23">}</a></code></pre></div>
+<p>Better would be to write two functions:</p>
+<div class="sourceCode" id="cb181"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb181-1" title="1"><span class="co">/* return the maximum of x and y */</span></a>
+<a class="sourceLine" id="cb181-2" title="2"><span class="dt">int</span></a>
+<a class="sourceLine" id="cb181-3" title="3">maximum(<span class="dt">int</span> x, <span class="dt">int</span> y)</a>
+<a class="sourceLine" id="cb181-4" title="4">{</a>
+<a class="sourceLine" id="cb181-5" title="5">    <span class="cf">if</span>(x &gt; y) {</a>
+<a class="sourceLine" id="cb181-6" title="6">        <span class="cf">return</span> x;</a>
+<a class="sourceLine" id="cb181-7" title="7">    } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb181-8" title="8">        <span class="cf">return</span> y;</a>
+<a class="sourceLine" id="cb181-9" title="9">    }</a>
+<a class="sourceLine" id="cb181-10" title="10">}</a>
+<a class="sourceLine" id="cb181-11" title="11"></a>
+<a class="sourceLine" id="cb181-12" title="12"><span class="co">/* return the minimum of x and y */</span></a>
+<a class="sourceLine" id="cb181-13" title="13"><span class="dt">int</span></a>
+<a class="sourceLine" id="cb181-14" title="14">minimum(<span class="dt">int</span> x, <span class="dt">int</span> y)</a>
+<a class="sourceLine" id="cb181-15" title="15">{</a>
+<a class="sourceLine" id="cb181-16" title="16">    <span class="cf">if</span>(x &lt; y) {</a>
+<a class="sourceLine" id="cb181-17" title="17">        <span class="cf">return</span> x;</a>
+<a class="sourceLine" id="cb181-18" title="18">    } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb181-19" title="19">        <span class="cf">return</span> y;</a>
+<a class="sourceLine" id="cb181-20" title="20">    }</a>
+<a class="sourceLine" id="cb181-21" title="21">}</a></code></pre></div>
+<p>At the same time, it’s possible for a function to be too simple. Suppose I write the function</p>
+<div class="sourceCode" id="cb182"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb182-1" title="1"><span class="co">/* print x to stdout followed by a newline */</span></a>
+<a class="sourceLine" id="cb182-2" title="2"><span class="dt">void</span></a>
+<a class="sourceLine" id="cb182-3" title="3">printIntWithNewline(<span class="dt">int</span> x)</a>
+<a class="sourceLine" id="cb182-4" title="4">{</a>
+<a class="sourceLine" id="cb182-5" title="5">    printf(<span class="st">"%d</span><span class="sc">\n</span><span class="st">"</span>, x);</a>
+<a class="sourceLine" id="cb182-6" title="6">}</a></code></pre></div>
+<p>It’s pretty clear from the name what this function does. But since anybody who has been using C for a while has seen <code>printf("%d\n", ...)</code> over and over again, it’s usually more clear to expand out the definition:</p>
+<div class="sourceCode" id="cb183"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb183-1" title="1">    printIntWithNewline(<span class="dv">2</span>+<span class="dv">5</span>);   <span class="co">/* this could do anything */</span></a>
+<a class="sourceLine" id="cb183-2" title="2">    printf(<span class="st">"%d</span><span class="sc">\n</span><span class="st">"</span>, <span class="dv">2</span>+<span class="dv">7</span>);        <span class="co">/* this does exactly what it says */</span></a></code></pre></div>
+<p>As with all caveats, this caveat comes with its own caveat: what might justify a function like this is if you want to be able to do some kind of specialized formatting that should be consistent for all values of a particular form. So you might write a <code>printDistance</code> function like the above as a stub for a fancier function that might use different units at different scales or something.</p>
+<p>A similar issue will come up with <a href="temp.html#nonSyntacticMacros">non-syntactic macros</a>, which also tend to fail the “does this make my code more or less understandable” test. Usually it is a bad idea to try to replace common C idioms.</p>
+<h3 id="Calling_a_function"><span class="header-section-number">4.8.3</span> Calling a function</h3>
+<p>A function call consists of the function followed by its arguments (if any) inside parentheses, separated by comments. For a function with no arguments, call it with nothing between the parentheses. A function call that returns a value can be used in an expression just like a variable. A call to a <code class="backtick">void</code> function can only be used as an expression by itself:</p>
+<div class="sourceCode" id="cb184"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb184-1" title="1">    totalDistance += distSquared(x1 - x2, y1 - y2);</a>
+<a class="sourceLine" id="cb184-2" title="2">    helloWorld();</a>
+<a class="sourceLine" id="cb184-3" title="3">    greetings += helloWorld();  <span class="co">/* ERROR */</span></a></code></pre></div>
+<h3 id="return"><span class="header-section-number">4.8.4</span> The return statement</h3>
+<p>To return a value from a function, write a <code class="backtick">return</code> statement, e.g.</p>
+<div class="sourceCode" id="cb185"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb185-1" title="1">    <span class="cf">return</span> <span class="dv">172</span>;</a></code></pre></div>
+<p>The argument to <code class="backtick">return</code> can be any expression. Unlike the expression in, say, an <code class="backtick">if</code> statement, you do not need to wrap it in parentheses. If a function is declared <code class="backtick">void</code>, you can do a <code class="backtick">return</code> with no expression, or just let control reach the end of the function.</p>
+<p>Executing a <code class="backtick">return</code> statement immediately terminates the function. This can be used like <code class="backtick">break</code> to get out of loops early.</p>
+<div>
+<div class="sourceCode" id="cb186"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb186-1" title="1"><span class="co">/* returns 1 if n is prime, 0 otherwise */</span></a>
+<a class="sourceLine" id="cb186-2" title="2"><span class="dt">int</span></a>
+<a class="sourceLine" id="cb186-3" title="3">isPrime(<span class="dt">int</span> n)</a>
+<a class="sourceLine" id="cb186-4" title="4">{</a>
+<a class="sourceLine" id="cb186-5" title="5">    <span class="dt">int</span> i;</a>
+<a class="sourceLine" id="cb186-6" title="6"></a>
+<a class="sourceLine" id="cb186-7" title="7">    <span class="cf">if</span> (n &lt; <span class="dv">2</span>) <span class="cf">return</span> <span class="dv">0</span>;   <span class="co">/* special case for 0, 1, negative n */</span></a>
+<a class="sourceLine" id="cb186-8" title="8"> </a>
+<a class="sourceLine" id="cb186-9" title="9">    <span class="cf">for</span>(i = <span class="dv">2</span>; i &lt; n; i++) {</a>
+<a class="sourceLine" id="cb186-10" title="10">        <span class="cf">if</span> (n % i == <span class="dv">0</span>) {</a>
+<a class="sourceLine" id="cb186-11" title="11">            <span class="co">/* found a factor */</span></a>
+<a class="sourceLine" id="cb186-12" title="12">            <span class="cf">return</span> <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb186-13" title="13">        }</a>
+<a class="sourceLine" id="cb186-14" title="14">    }</a>
+<a class="sourceLine" id="cb186-15" title="15"></a>
+<a class="sourceLine" id="cb186-16" title="16">    <span class="co">/* no factors */</span></a>
+<a class="sourceLine" id="cb186-17" title="17">    <span class="cf">return</span> <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb186-18" title="18">}</a></code></pre></div>
+<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/functions/isPrime.c">examples/functions/isPrime.c</a>
+</div>
+<h3 id="modules"><span class="header-section-number">4.8.5</span> Function declarations and modules</h3>
+<p>By default, functions have <strong>global scope</strong>: they can be used anywhere in your program, even in other files. If a file doesn’t contain a declaration for a function <code class="backtick">someFunc</code> before it is used, the compiler will assume that it is declared like <code class="backtick">int someFunc()</code> (i.e., return type <code class="backtick">int</code> and unknown arguments). This can produce infuriating complaints later when the compiler hits the real declaration and insists that your function <code class="backtick">someFunc</code> should be returning an <code class="backtick">int</code> and you are a bonehead for declaring it otherwise.</p>
+<p>The solution to such insulting compiler behavior errors is to either (a) move the function declaration before any functions that use it; or (b) put in a declaration without a body before any functions that use it, in addition to the declaration that appears in the function definition. (Note that this violates the <strong>no separate but equal</strong> rule, but the compiler should tell you when you make a mistake.) Option (b) is generally preferred, and is the only option when the function is used in a different file.</p>
+<p>To make sure that all declarations of a function are consistent, the usual practice is to put them in an include file. For example, if <code class="backtick">distSquared</code> is used in a lot of places, we might put it in its own file <code class="backtick">distSquared.c</code>:</p>
+<div>
+<div class="sourceCode" id="cb187"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb187-1" title="1"><span class="pp">#include </span><span class="im">"distSquared.h"</span></a>
+<a class="sourceLine" id="cb187-2" title="2"></a>
+<a class="sourceLine" id="cb187-3" title="3"><span class="dt">int</span></a>
+<a class="sourceLine" id="cb187-4" title="4">distSquared(<span class="dt">int</span> dx, <span class="dt">int</span> dy)</a>
+<a class="sourceLine" id="cb187-5" title="5">{</a>
+<a class="sourceLine" id="cb187-6" title="6">    <span class="cf">return</span> dx*dx + dy*dy;</a>
+<a class="sourceLine" id="cb187-7" title="7">}</a></code></pre></div>
+<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/functions/distSquared.c">examples/functions/distSquared.c</a>
+</div>
+<p>The file <code>distSquared.c</code> above uses <code class="backtick">#include</code> to include a copy of the following header file <code>distSquared.h</code>:</p>
+<div>
+<div class="sourceCode" id="cb188"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb188-1" title="1"><span class="co">/* Returns the square of the distance between two points separated by </span></a>
+<a class="sourceLine" id="cb188-2" title="2"><span class="co">   dx in the x direction and dy in the y direction. */</span></a>
+<a class="sourceLine" id="cb188-3" title="3"><span class="dt">int</span> distSquared(<span class="dt">int</span> dx, <span class="dt">int</span> dy);</a></code></pre></div>
+<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/functions/distSquared.h">examples/functions/distSquared.h</a>
+</div>
+<p>Note that the declaration in <code class="backtick">distSquared.h</code> doesn’t have a body. Instead, it’s terminated by a semicolon, like a variable declaration. It’s also worth noting that we moved the documenting comment to <code class="backtick">distSquared.h</code>: the idea is that <code class="backtick">distSquared.h</code> is the public face of this (very small one-function) module, and so the explanation of how to use the function should be there.</p>
+<p>The reason <code class="backtick">distSquared.c</code> includes <code class="backtick">distSquared.h</code> is to get the compiler to verify that the declarations in the two files match. But to use the <code class="backtick">distSquared</code> function, we also put <code class="backtick">#include "distSquared.h"</code> at the top of the file that uses it:</p>
+<div>
+<div class="sourceCode" id="cb189"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb189-1" title="1"><span class="pp">#include </span><span class="im">"distSquared.h"</span></a>
+<a class="sourceLine" id="cb189-2" title="2"></a>
+<a class="sourceLine" id="cb189-3" title="3"><span class="pp">#define THRESHOLD (100)</span></a>
+<a class="sourceLine" id="cb189-4" title="4"></a>
+<a class="sourceLine" id="cb189-5" title="5"><span class="dt">int</span></a>
+<a class="sourceLine" id="cb189-6" title="6">tooClose(<span class="dt">int</span> x1, <span class="dt">int</span> y1, <span class="dt">int</span> x2, <span class="dt">int</span> y2)</a>
+<a class="sourceLine" id="cb189-7" title="7">{</a>
+<a class="sourceLine" id="cb189-8" title="8">    <span class="cf">return</span> distSquared(x1 - x2, y1 - y2) &lt; THRESHOLD;</a>
+<a class="sourceLine" id="cb189-9" title="9">}</a></code></pre></div>
+<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/functions/tooClose.c">examples/functions/tooClose.c</a>
+</div>
+<p>The <code class="backtick">#include</code> on line 1 uses double quotes instead of angle brackets; this tells the compiler to look for <code class="backtick">distSquared.h</code> in the current directory instead of the system include directory (typically <code class="backtick">/usr/include</code>).</p>
+<h3 id="Static_functions"><span class="header-section-number">4.8.6</span> Static functions</h3>
+<p>By default, all functions are global; they can be used in any file of your program whether or not a declaration appears in a header file. To restrict access to the current file, declare a function <code class="backtick">static</code>, like this:</p>
+<div>
+<div class="sourceCode" id="cb190"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb190-1" title="1"><span class="dt">static</span> <span class="dt">void</span></a>
+<a class="sourceLine" id="cb190-2" title="2">helloHelper(<span class="dt">void</span>)</a>
+<a class="sourceLine" id="cb190-3" title="3">{</a>
+<a class="sourceLine" id="cb190-4" title="4">    puts(<span class="st">"hi!"</span>);</a>
+<a class="sourceLine" id="cb190-5" title="5">}</a>
+<a class="sourceLine" id="cb190-6" title="6"></a>
+<a class="sourceLine" id="cb190-7" title="7"><span class="dt">void</span></a>
+<a class="sourceLine" id="cb190-8" title="8">hello(<span class="dt">int</span> repetitions)</a>
+<a class="sourceLine" id="cb190-9" title="9">{</a>
+<a class="sourceLine" id="cb190-10" title="10">    <span class="dt">int</span> i;</a>
+<a class="sourceLine" id="cb190-11" title="11"></a>
+<a class="sourceLine" id="cb190-12" title="12">    <span class="cf">for</span>(i = <span class="dv">0</span>; i &lt; repetitions; i++) {</a>
+<a class="sourceLine" id="cb190-13" title="13">        helloHelper();</a>
+<a class="sourceLine" id="cb190-14" title="14">    }</a>
+<a class="sourceLine" id="cb190-15" title="15">}</a></code></pre></div>
+<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/functions/staticHello.c">examples/functions/staticHello.c</a>
+</div>
+<p>The function <code class="backtick">hello</code> will be visible everywhere. The function <code class="backtick">helloHelper</code> will only be visible in the current file.</p>
+<p>It’s generally good practice to declare a function static unless you intend to make it available, since not doing so can cause <strong>namespace conflicts</strong>, where the presence of two functions with the same name either prevent the program from linking or—even worse—cause the wrong function to be called. The latter can happen with library functions, since C allows the programmer to override library functions by defining a new function with the same name. Early on in my career as a C programmer, I once had a program fail in a spectacularly incomprehensible way because I’d written a <code class="backtick">select</code> function without realizing that <code class="backtick">select</code> is a core library function in Unix.</p>
+<h3 id="Local_variables"><span class="header-section-number">4.8.7</span> Local variables</h3>
+<p>A function may contain definitions of <strong>local variables</strong>, which are visible only inside the function and which survive only until the function returns. These may be declared at the start of any block (group of statements enclosed by braces), but it is conventional to declare all of them at the outermost block of the function.</p>
+<div>
+<div class="sourceCode" id="cb191"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb191-1" title="1"><span class="co">/* Given n, compute n! = 1*2*...*n */</span></a>
+<a class="sourceLine" id="cb191-2" title="2"><span class="co">/* Warning: will overflow on 32-bit machines if n &gt; 12 */</span></a>
+<a class="sourceLine" id="cb191-3" title="3"><span class="dt">int</span></a>
+<a class="sourceLine" id="cb191-4" title="4">factorial(<span class="dt">int</span> n)</a>
+<a class="sourceLine" id="cb191-5" title="5">{</a>
+<a class="sourceLine" id="cb191-6" title="6">    <span class="dt">int</span> i;</a>
+<a class="sourceLine" id="cb191-7" title="7">    <span class="dt">int</span> product;</a>
+<a class="sourceLine" id="cb191-8" title="8"></a>
+<a class="sourceLine" id="cb191-9" title="9">    <span class="cf">if</span>(n &lt; <span class="dv">2</span>) <span class="cf">return</span> n;</a>
+<a class="sourceLine" id="cb191-10" title="10">    <span class="co">/* else */</span></a>
+<a class="sourceLine" id="cb191-11" title="11"></a>
+<a class="sourceLine" id="cb191-12" title="12">    product = <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb191-13" title="13"></a>
+<a class="sourceLine" id="cb191-14" title="14">    <span class="cf">for</span>(i = <span class="dv">2</span>; i &lt;= n; i++) {</a>
+<a class="sourceLine" id="cb191-15" title="15">        product *= i;</a>
+<a class="sourceLine" id="cb191-16" title="16">    }</a>
+<a class="sourceLine" id="cb191-17" title="17"></a>
+<a class="sourceLine" id="cb191-18" title="18">    <span class="cf">return</span> product;</a>
+<a class="sourceLine" id="cb191-19" title="19">}</a></code></pre></div>
+<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/functions/factorial.c">examples/functions/factorial.c</a>
+</div>
+<h3 id="Mechanics_of_function_calls"><span class="header-section-number">4.8.8</span> Mechanics of function calls</h3>
+<p>Several things happen under the hood when a function is called. Since a function can be called from several different places, the CPU needs to store its previous state to know where to go back. It also needs to allocate space for function arguments and local variables.</p>
+<p>Some of this information will be stored in <strong>registers</strong>, memory locations built into the CPU itself, but most will go on the <strong>stack</strong>, a region of memory that on typical machines grows downward, even though the most recent additions to the stack are called the “top” of the stack. The location of the top of the stack is stored in the CPU in a special register called the <strong>stack pointer</strong>.</p>
+<p>So a typical function call looks like this internally:</p>
+<ol type="1">
+<li>The current <strong>instruction pointer</strong> or <strong>program counter</strong> value, which gives the address of the next line of machine code to be executed, is pushed onto the stack.</li>
+<li>Any arguments to the function are copied either into specially designated registers or onto new locations on the stack. The exact rules for how to do this vary from one CPU architecture to the next, but a typical convention might be that the first few arguments are copied into registers and the rest (if any) go on the stack.</li>
+<li>The instruction pointer is set to the first instruction in the code for the function.</li>
+<li>The code for the function allocates additional space on the stack to hold its local variables (if any) and to save copies of the values of any registers it wants to use (so that it can restore their contents before returning to its caller).</li>
+<li>The function body is executed until it hits a <code class="backtick">return</code> statement.</li>
+<li>Returning from the function is the reverse of invoking it: any saved registers are restored from the stack, the return value is copied to a standard register, and the values of the instruction pointer and stack pointer are restored to what they were before the function call.</li>
+</ol>
+<p>From the programmer’s perspective, the important point is that both the arguments and the local variables inside a function are stored in freshly-allocated locations that are thrown away after the function exits. So after a function call the state of the CPU is restored to its previous state, except for the return value. Any arguments that are passed to a function are passed as copies, so changing the values of the function arguments inside the function has no effect on the caller. Any information stored in local variables is lost.</p>
+<p>Under very rare circumstances, it may be useful to have a variable local to a function that persists from one function call to the next. You can do so by declaring the variable <code class="backtick">static</code>. For example, here is a function that counts how many times it has been called:</p>
+<div>
+<div class="sourceCode" id="cb192"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb192-1" title="1"><span class="co">/* return the number of times the function has been called */</span></a>
+<a class="sourceLine" id="cb192-2" title="2"><span class="dt">int</span></a>
+<a class="sourceLine" id="cb192-3" title="3">counter(<span class="dt">void</span>)</a>
+<a class="sourceLine" id="cb192-4" title="4">{</a>
+<a class="sourceLine" id="cb192-5" title="5">    <span class="dt">static</span> count = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb192-6" title="6"></a>
+<a class="sourceLine" id="cb192-7" title="7">    <span class="cf">return</span> ++count;</a>
+<a class="sourceLine" id="cb192-8" title="8">}</a></code></pre></div>
+<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/functions/staticCounter.c">examples/functions/staticCounter.c</a>
+</div>
+<p>Static local variables are stored outside the stack with global variables, and have unbounded extent. But they are only visible inside the function that declares them. This makes them slightly less dangerous than global variables—there is no fear that some foolish bit of code elsewhere will quietly change their value—but it is still the case that they usually aren’t what you want. It is also likely that operations on static variables will be slightly slower than operations on ordinary (“automatic”) variables, since making them persistent means that they have to be stored in (slow) main memory instead of (fast) registers.</p>
+<h3 id="modules"><span class="header-section-number">4.8.5</span> Function declarations and modules</h3>
+<p>By default, functions have <strong>global scope</strong>: they can be used anywhere in your program, even in other files. If a file doesn’t contain a declaration for a function <code class="backtick">someFunc</code> before it is used, the compiler will assume that it is declared like <code class="backtick">int someFunc()</code> (i.e., return type <code class="backtick">int</code> and unknown arguments). This can produce infuriating complaints later when the compiler hits the real declaration and insists that your function <code class="backtick">someFunc</code> should be returning an <code class="backtick">int</code> and you are a bonehead for declaring it otherwise.</p>
+<p>The solution to such insulting compiler behavior errors is to either (a) move the function declaration before any functions that use it; or (b) put in a declaration without a body before any functions that use it, in addition to the declaration that appears in the function definition. (Note that this violates the <strong>no separate but equal</strong> rule, but the compiler should tell you when you make a mistake.) Option (b) is generally preferred, and is the only option when the function is used in a different file.</p>
+<p>To make sure that all declarations of a function are consistent, the usual practice is to put them in an include file. For example, if <code class="backtick">distSquared</code> is used in a lot of places, we might put it in its own file <code class="backtick">distSquared.c</code>:</p>
+<div>
+<div class="sourceCode" id="cb187"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb187-1" title="1"><span class="pp">#include </span><span class="im">"distSquared.h"</span></a>
+<a class="sourceLine" id="cb187-2" title="2"></a>
+<a class="sourceLine" id="cb187-3" title="3"><span class="dt">int</span></a>
+<a class="sourceLine" id="cb187-4" title="4">distSquared(<span class="dt">int</span> dx, <span class="dt">int</span> dy)</a>
+<a class="sourceLine" id="cb187-5" title="5">{</a>
+<a class="sourceLine" id="cb187-6" title="6">    <span class="cf">return</span> dx*dx + dy*dy;</a>
+<a class="sourceLine" id="cb187-7" title="7">}</a></code></pre></div>
+<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/functions/distSquared.c">examples/functions/distSquared.c</a>
+</div>
+<p>The file <code>distSquared.c</code> above uses <code class="backtick">#include</code> to include a copy of the following header file <code>distSquared.h</code>:</p>
+<div>
+<div class="sourceCode" id="cb188"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb188-1" title="1"><span class="co">/* Returns the square of the distance between two points separated by </span></a>
+<a class="sourceLine" id="cb188-2" title="2"><span class="co">   dx in the x direction and dy in the y direction. */</span></a>
+<a class="sourceLine" id="cb188-3" title="3"><span class="dt">int</span> distSquared(<span class="dt">int</span> dx, <span class="dt">int</span> dy);</a></code></pre></div>
+<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/functions/distSquared.h">examples/functions/distSquared.h</a>
+</div>
+<p>Note that the declaration in <code class="backtick">distSquared.h</code> doesn’t have a body. Instead, it’s terminated by a semicolon, like a variable declaration. It’s also worth noting that we moved the documenting comment to <code class="backtick">distSquared.h</code>: the idea is that <code class="backtick">distSquared.h</code> is the public face of this (very small one-function) module, and so the explanation of how to use the function should be there.</p>
+<p>The reason <code class="backtick">distSquared.c</code> includes <code class="backtick">distSquared.h</code> is to get the compiler to verify that the declarations in the two files match. But to use the <code class="backtick">distSquared</code> function, we also put <code class="backtick">#include "distSquared.h"</code> at the top of the file that uses it:</p>
+<div>
+<div class="sourceCode" id="cb189"><pre class="sourceCode c"><code class="sourceCode c"><a class="sourceLine" id="cb189-1" title="1"><span class="pp">#include </span><span class="im">"distSquared.h"</span></a>
+<a class="sourceLine" id="cb189-2" title="2"></a>
+<a class="sourceLine" id="cb189-3" title="3"><span class="pp">#define THRESHOLD (100)</span></a>
+<a class="sourceLine" id="cb189-4" title="4"></a>
+<a class="sourceLine" id="cb189-5" title="5"><span class="dt">int</span></a>
+<a class="sourceLine" id="cb189-6" title="6">tooClose(<span class="dt">int</span> x1, <span class="dt">int</span> y1, <span class="dt">int</span> x2, <span class="dt">int</span> y2)</a>
+<a class="sourceLine" id="cb189-7" title="7">{</a>
+<a class="sourceLine" id="cb189-8" title="8">    <span class="cf">return</span> distSquared(x1 - x2, y1 - y2) &lt; THRESHOLD;</a>
+<a class="sourceLine" id="cb189-9" title="9">}</a></code></pre></div>
+<a href="https://www.cs.yale.edu/homes/aspnes/classes/223/examples/functions/tooClose.c">examples/functions/tooClose.c</a>
+</div>
+<p>The <code class="backtick">#include</code> on line 1 uses double quotes instead of angle brackets; this tells the compiler to look for <code class="backtick">distSquared.h</code> in the current directory instead of the system include directory (typically <code class="backtick">/usr/include</code>).</p>
