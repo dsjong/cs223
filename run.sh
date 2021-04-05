@@ -2,7 +2,7 @@
 FOLDER=$(dirname "$BASH_SOURCE")
 cd "$FOLDER"
 set -e
-help="./run.sh lecture|hw <number>"
+help="./run.sh lecture|hw <number> [new]"
 
 commands=("lecture" "hw")
 
@@ -31,8 +31,10 @@ if ! [[ $2 =~ $re ]] ; then
 	exit 1
 fi
 
-wget https://www.cs.yale.edu/homes/aspnes/classes/223/notes.html --no-check-certificate --convert-links -O temp.html &> /dev/null
-cp -f temp.html notes.html
+if ! [ -z "$3" ]; then
+	wget https://www.cs.yale.edu/homes/aspnes/classes/223/notes.html --no-check-certificate --convert-links -O temp.html &> /dev/null
+	cp -f temp.html notes.html
+fi
 
 echo $2 | python $1.py
 cmd.exe /C start output.html

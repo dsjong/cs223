@@ -2,4 +2,4 @@
 For reading short excerpts of CS223's behemoth of a lecture notes file
 
 ## Usage
-Run `./run.sh lecture|hw <number>` in WSL.
+Run `./run.sh lecture|hw <number> [new]` in WSL.
